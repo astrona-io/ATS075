@@ -1,8 +1,9 @@
-# Preparation scaffold. Technical pages stay draft until authoring and review.
+# Reading-only content; YAML knowledge checks have a separate index.
 training:
   id: ATS075
   title: 'OTCA: The OpenTelemetry Collector'
-  description: Preparation scaffold for The OpenTelemetry Collector. Lessons and environments are planned.
+  description: 'Detailed reading material and reusable YAML knowledge checks for OTCA: The OpenTelemetry
+    Collector. Technical content remains draft. No labs or playgrounds.'
   certification:
     name: OpenTelemetry Certified Associate
     code: OTCA
@@ -18,7 +19,7 @@ training:
 modules:
 - id: module-intro
   title: Introduction
-  description: Planned introduction and authoring status.
+  description: Audience, reading method and review process.
   content:
   - type: reading
     title: Introduction
@@ -34,51 +35,86 @@ modules:
     path: sections/intro/course-03-how-this-course-is-made.md
 - id: module-010
   title: Configuration
-  description: Planned coverage of this curriculum objective.
+  description: Developed reading and reasoning for Configuration.
+  draft: true
   content:
-  - type: reading
-    title: Section Overview
-    path: sections/section-010/README.md
   - type: reading
     title: Configuration
+    path: sections/section-010/README.md
+  - type: reading
+    title: Component Definitions, Enabled Pipelines And Distribution Support
     path: sections/section-010/module-01/course.md
+  - type: reading
+    title: Component Definitions, Enabled Pipelines And Distribution Support
+    path: sections/section-010/module-01/course-01-component-definitions-enabled-pipelines-and-distribution-support.md
+  - type: reading
+    title: Summary
+    path: sections/section-010/module-01/course-02-summary.md
 - id: module-020
   title: Deployment
-  description: Planned coverage of this curriculum objective.
+  description: Developed reading and reasoning for Deployment.
+  draft: true
   content:
-  - type: reading
-    title: Section Overview
-    path: sections/section-020/README.md
   - type: reading
     title: Deployment
+    path: sections/section-020/README.md
+  - type: reading
+    title: Agent And Gateway Tiers, Ownership And Failure Domains
     path: sections/section-020/module-01/course.md
+  - type: reading
+    title: Agent And Gateway Tiers, Ownership And Failure Domains
+    path: sections/section-020/module-01/course-01-agent-and-gateway-tiers-ownership-and-failure-domains.md
+  - type: reading
+    title: Summary
+    path: sections/section-020/module-01/course-02-summary.md
 - id: module-030
   title: Scaling
-  description: Planned coverage of this curriculum objective.
+  description: Developed reading and reasoning for Scaling.
+  draft: true
   content:
-  - type: reading
-    title: Section Overview
-    path: sections/section-030/README.md
   - type: reading
     title: Scaling
+    path: sections/section-030/README.md
+  - type: reading
+    title: Capacity Signals, Sharding And Stateful Processing
     path: sections/section-030/module-01/course.md
+  - type: reading
+    title: Capacity Signals, Sharding And Stateful Processing
+    path: sections/section-030/module-01/course-01-capacity-signals-sharding-and-stateful-processing.md
+  - type: reading
+    title: Summary
+    path: sections/section-030/module-01/course-02-summary.md
 - id: module-040
   title: Pipelines
-  description: Planned coverage of this curriculum objective.
+  description: Developed reading and reasoning for Pipelines.
+  draft: true
   content:
-  - type: reading
-    title: Section Overview
-    path: sections/section-040/README.md
   - type: reading
     title: Pipelines
+    path: sections/section-040/README.md
+  - type: reading
+    title: Signal Paths, Shared Components And Export Fan-Out
     path: sections/section-040/module-01/course.md
+  - type: reading
+    title: Signal Paths, Shared Components And Export Fan-Out
+    path: sections/section-040/module-01/course-01-signal-paths-shared-components-and-export-fan-out.md
+  - type: reading
+    title: Summary
+    path: sections/section-040/module-01/course-02-summary.md
 - id: module-050
   title: Transforming Data
-  description: Planned coverage of this curriculum objective.
+  description: Developed reading and reasoning for Transforming Data.
+  draft: true
   content:
   - type: reading
-    title: Section Overview
+    title: Transforming Data
     path: sections/section-050/README.md
   - type: reading
-    title: Transforming Data
+    title: Attribute Changes, Filtering And Transformation Safety
     path: sections/section-050/module-01/course.md
+  - type: reading
+    title: Attribute Changes, Filtering And Transformation Safety
+    path: sections/section-050/module-01/course-01-attribute-changes-filtering-and-transformation-safety.md
+  - type: reading
+    title: Summary
+    path: sections/section-050/module-01/course-02-summary.md
