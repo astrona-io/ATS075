@@ -1,0 +1,16 @@
+schema_version: 1
+course_id: ATS075
+status: draft
+banks:
+- id: ats075-domain-review
+  path: assessments/domain-review.yaml
+  question_count: 15
+  placement:
+    position: after
+    reading: sections/section-050/module-01/course-02-summary.md
+  covered_sections:
+  - section-010
+  - section-020
+  - section-030
+  - section-040
+  - section-050

@@ -1,0 +1,301 @@
+schema_version: 1
+kind: question_bank
+id: ats075-domain-review
+course_id: ATS075
+exam_code: OTCA
+status: draft
+provenance: Original practice material; not official examination questions.
+scope:
+  type: domain
+  id: domain-review
+  title: The OpenTelemetry Collector
+placement:
+  position: after
+  reading: sections/section-050/module-01/course-02-summary.md
+questions:
+- id: ats075-domain-review-q01
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Interpret Collector receivers, processors, exporters and extensions.
+  source_readings:
+  - sections/section-010/module-01/course-01-component-definitions-enabled-pipelines-and-distribution-support.md
+  prompt: Does defining an exporter automatically enable it?
+  options:
+  - id: a
+    text: Yes; every definition runs for every signal.
+    explanation: That is not the service-pipeline contract.
+  - id: b
+    text: Only if its name appears in a browser title.
+    explanation: Presentation is unrelated.
+  - id: c
+    text: No; a compatible pipeline must reference it.
+    explanation: Definitions and activation are separate.
+  correct_option: c
+  explanation: Definitions and activation are separate.
+- id: ats075-domain-review-q02
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Explain why component definition is separate from activation.
+  source_readings:
+  - sections/section-010/module-01/course-01-component-definitions-enabled-pipelines-and-distribution-support.md
+  prompt: Which configuration determines processor order?
+  options:
+  - id: a
+    text: The latest trace ID.
+    explanation: Trace identity does not choose processor order.
+  - id: b
+    text: The processor sequence in the enabled pipeline.
+    explanation: Order can change the resulting data.
+  - id: c
+    text: Alphabetical order of all YAML keys.
+    explanation: Definitions do not establish that processing sequence.
+  correct_option: b
+  explanation: Order can change the resulting data.
+- id: ats075-domain-review-q03
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Identify distribution, signal and endpoint compatibility requirements.
+  source_readings:
+  - sections/section-010/module-01/course-01-component-definitions-enabled-pipelines-and-distribution-support.md
+  prompt: A component type is unavailable in the selected Collector binary. What is needed?
+  options:
+  - id: a
+    text: A distribution or build that includes that component, or a supported alternative.
+    explanation: Configuration cannot create absent implementation.
+  - id: b
+    text: A larger queue with the same missing component.
+    explanation: Capacity does not add code.
+  - id: c
+    text: A renamed application service.
+    explanation: Resource names do not install components.
+  correct_option: a
+  explanation: Configuration cannot create absent implementation.
+- id: ats075-domain-review-q04
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Compare agent and gateway deployment responsibilities.
+  source_readings:
+  - sections/section-020/module-01/course-01-agent-and-gateway-tiers-ownership-and-failure-domains.md
+  prompt: What commonly distinguishes a gateway tier?
+  options:
+  - id: a
+    text: Automatic creation of every missing application span.
+    explanation: Recording still depends on instrumentation.
+  - id: b
+    text: Exclusive browser rendering of telemetry.
+    explanation: A gateway is a collection service.
+  - id: c
+    text: Shared centralized processing and onward export for many producers.
+    explanation: It serves a broader collection boundary.
+  correct_option: c
+  explanation: It serves a broader collection boundary.
+- id: ats075-domain-review-q05
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Explain identity enrichment and credential placement across tiers.
+  source_readings:
+  - sections/section-020/module-01/course-01-agent-and-gateway-tiers-ownership-and-failure-domains.md
+  prompt: Why preserve resource identity across collection tiers?
+  options:
+  - id: a
+    text: Identity automatically proves user permission.
+    explanation: Resource metadata is not authorization.
+  - id: b
+    text: Consumers must still distinguish the original producers.
+    explanation: The gateway's identity is not every application's identity.
+  - id: c
+    text: All services should become one indistinguishable series.
+    explanation: That destroys useful attribution.
+  correct_option: b
+  explanation: The gateway's identity is not every application's identity.
+- id: ats075-domain-review-q06
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Reason about availability, access and buffering between collection layers.
+  source_readings:
+  - sections/section-020/module-01/course-01-agent-and-gateway-tiers-ownership-and-failure-domains.md
+  prompt: What should be reviewed when adding another collection tier?
+  options:
+  - id: a
+    text: Capacity, access, buffering and failure behavior at the new boundary.
+    explanation: A tier is another operational dependency.
+  - id: b
+    text: Only whether its name contains gateway.
+    explanation: A name does not establish behavior.
+  - id: c
+    text: A guarantee that no data can ever be lost.
+    explanation: Topology alone cannot provide that guarantee.
+  correct_option: a
+  explanation: A tier is another operational dependency.
+- id: ats075-domain-review-q07
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Distinguish source, processor and destination bottlenecks.
+  source_readings:
+  - sections/section-030/module-01/course-01-capacity-signals-sharding-and-stateful-processing.md
+  prompt: Why can duplicating identical scrape replicas be harmful?
+  options:
+  - id: a
+    text: Scrapers cannot use network connections.
+    explanation: They actively obtain data over supported protocols.
+  - id: b
+    text: Every extra replica automatically partitions targets.
+    explanation: Partitioning requires configuration or an allocator.
+  - id: c
+    text: Each replica can collect the same targets and create duplicate data.
+    explanation: Scraping requires deliberate target assignment.
+  correct_option: c
+  explanation: Scraping requires deliberate target assignment.
+- id: ats075-domain-review-q08
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Explain scrape sharding and trace-affine processing.
+  source_readings:
+  - sections/section-030/module-01/course-01-capacity-signals-sharding-and-stateful-processing.md
+  prompt: What does tail sampling commonly require?
+  options:
+  - id: a
+    text: The browser must own the sampling queue.
+    explanation: Sampling is collection processing.
+  - id: b
+    text: Related spans must converge at the appropriate processing instance.
+    explanation: A decision needs sufficient trace evidence.
+  - id: c
+    text: Every span must be sent to an unrelated random replica.
+    explanation: That fragments evidence.
+  correct_option: b
+  explanation: A decision needs sufficient trace evidence.
+- id: ats075-domain-review-q09
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Reason about scaling without increasing duplicate data or downstream overload.
+  source_readings:
+  - sections/section-030/module-01/course-01-capacity-signals-sharding-and-stateful-processing.md
+  prompt: Export queues grow while the destination persistently rejects writes. What is the first issue
+    to investigate?
+  options:
+  - id: a
+    text: The downstream rejection and destination capacity or permissions.
+    explanation: More Collector replicas may amplify the same failure.
+  - id: b
+    text: Only increasing all receiver replicas without checking the rejection.
+    explanation: That does not repair the destination contract.
+  - id: c
+    text: Renaming every service.
+    explanation: Identity names are not the immediate export failure.
+  correct_option: a
+  explanation: More Collector replicas may amplify the same failure.
+- id: ats075-domain-review-q10
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Trace signal data through enabled Collector pipelines.
+  source_readings:
+  - sections/section-040/module-01/course-01-signal-paths-shared-components-and-export-fan-out.md
+  prompt: What determines a signal's processing sequence?
+  options:
+  - id: a
+    text: The order of unrelated exporter definitions.
+    explanation: Definitions alone do not establish processing.
+  - id: b
+    text: The catalog's alphabetical entity list.
+    explanation: Catalog order is unrelated.
+  - id: c
+    text: Its enabled pipeline's ordered processors.
+    explanation: The service path defines the sequence.
+  correct_option: c
+  explanation: The service path defines the sequence.
+- id: ats075-domain-review-q11
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Explain the consequences of shared components and multiple exporters.
+  source_readings:
+  - sections/section-040/module-01/course-01-signal-paths-shared-components-and-export-fan-out.md
+  prompt: What should be reviewed before adding an exporter to a pipeline?
+  options:
+  - id: a
+    text: A guarantee that all destinations acknowledge together forever.
+    explanation: Delivery contracts can differ.
+  - id: b
+    text: Data exposure, compatibility and failure behavior for the new destination.
+    explanation: Fan-out creates another delivery boundary.
+  - id: c
+    text: Only whether its name is shorter.
+    explanation: Name length does not establish safety.
+  correct_option: b
+  explanation: Fan-out creates another delivery boundary.
+- id: ats075-domain-review-q12
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Identify where ordering, backpressure and signal support affect results.
+  source_readings:
+  - sections/section-040/module-01/course-01-signal-paths-shared-components-and-export-fan-out.md
+  prompt: Why can a filter before a transformation differ from the reverse order?
+  options:
+  - id: a
+    text: The transformation can change the fields the filter evaluates.
+    explanation: Order changes the input to later processing.
+  - id: b
+    text: Processors always run alphabetically.
+    explanation: The pipeline declares order.
+  - id: c
+    text: Every filter only changes browser colors.
+    explanation: Filters operate on telemetry data.
+  correct_option: a
+  explanation: Order changes the input to later processing.
+- id: ats075-domain-review-q13
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Explain transformation and filtering as changes to evidence.
+  source_readings:
+  - sections/section-050/module-01/course-01-attribute-changes-filtering-and-transformation-safety.md
+  prompt: Why distinguish resource and record attributes during transformation?
+  options:
+  - id: a
+    text: All attributes always belong to one global map.
+    explanation: The model has distinct scopes.
+  - id: b
+    text: Scope only changes the font size.
+    explanation: It changes data meaning.
+  - id: c
+    text: Changing the wrong scope can affect many unrelated observations.
+    explanation: Attribute scope determines the transformation's reach.
+  correct_option: c
+  explanation: Attribute scope determines the transformation's reach.
+- id: ats075-domain-review-q14
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Reason about processor order, error modes and resource scope.
+  source_readings:
+  - sections/section-050/module-01/course-01-attribute-changes-filtering-and-transformation-safety.md
+  prompt: What can happen when a distinguishing metric attribute is removed?
+  options:
+  - id: a
+    text: All measurements become harmless by definition.
+    explanation: Privacy and semantics still need review.
+  - id: b
+    text: Previously separate streams may collide or require deliberate aggregation.
+    explanation: Metric identity includes dimensions.
+  - id: c
+    text: Every trace becomes a database row automatically.
+    explanation: That is unrelated.
+  correct_option: b
+  explanation: Metric identity includes dimensions.
+- id: ats075-domain-review-q15
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Identify privacy and metric-identity consequences of data changes.
+  source_readings:
+  - sections/section-050/module-01/course-01-attribute-changes-filtering-and-transformation-safety.md
+  prompt: Where should redaction occur when data must not cross an external boundary?
+  options:
+  - id: a
+    text: Before the first prohibited disclosure boundary.
+    explanation: Later redaction cannot retract earlier delivery.
+  - id: b
+    text: Only after every diagnostic exporter receives it.
+    explanation: That already exposes the data.
+  - id: c
+    text: Only in the browser's visual label.
+    explanation: Presentation does not change exported payloads.
+  correct_option: a
+  explanation: Later redaction cannot retract earlier delivery.
