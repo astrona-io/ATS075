@@ -36,7 +36,7 @@ modules:
 - id: module-010
   title: Configuration
   description: Developed reading and reasoning for Configuration.
-  status: alpha
+  maturity: alpha
   content:
   - type: reading
     title: Configuration
@@ -53,7 +53,7 @@ modules:
 - id: module-020
   title: Deployment
   description: Developed reading and reasoning for Deployment.
-  status: alpha
+  maturity: alpha
   content:
   - type: reading
     title: Deployment
@@ -70,7 +70,7 @@ modules:
 - id: module-030
   title: Scaling
   description: Developed reading and reasoning for Scaling.
-  status: alpha
+  maturity: alpha
   content:
   - type: reading
     title: Scaling
@@ -87,7 +87,7 @@ modules:
 - id: module-040
   title: Pipelines
   description: Developed reading and reasoning for Pipelines.
-  status: alpha
+  maturity: alpha
   content:
   - type: reading
     title: Pipelines
@@ -104,7 +104,7 @@ modules:
 - id: module-050
   title: Transforming Data
   description: Developed reading and reasoning for Transforming Data.
-  status: alpha
+  maturity: alpha
   content:
   - type: reading
     title: Transforming Data
