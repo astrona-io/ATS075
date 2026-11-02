@@ -199,102 +199,53 @@ Strict guidelines:
 
 ## About this repo (ATS075 only)
 
-Everything above is the shared writing guidance copied from ATS015. This section
-defines the scope of this repository. Product names in the shared examples are
-examples of style; use the actual technology of this domain in new material.
+The course covers **The OpenTelemetry Collector**, worth **26%** of
+**OpenTelemetry Certified Associate (OTCA)**. It is part of **ATP015**.
+The official objectives are listed in `astrona.yaml` and mapped in `CURRICULUM.md`.
 
-### What the student is trying to learn
+### Reading-only scope
 
-The goal is the **The OpenTelemetry Collector** domain of **OpenTelemetry Certified Associate (OTCA)**,
-worth **26%** of the published curriculum. This series is one
-stage of **ATP015**. The exam format is multiple-choice.
+The maintainer approved the lesson plan, asked for deeper teaching, and explicitly
+requested **no labs or playgrounds**. That instruction overrides shared examples
+about hands-on environments, graded labs and playground markers. Do not create
+runtime configurations, executable exercises or playground lifecycle markers.
+The course must be usable without a cluster or installed command-line tools.
 
-The official objectives, checked on 2026-10-10, are the competencies in
-`astrona.yaml`. Each objective has an initial section reserved for authoring:
+### Teaching structure and depth
 
-| Section | Curriculum objective |
-| --- | --- |
-| 010 | Configuration |
-| 020 | Deployment |
-| 030 | Scaling |
-| 040 | Pipelines |
-| 050 | Transforming Data |
+Every section begins with its own introduction and measurable learning outcomes.
+Every module contains a landing page, developed teaching lessons and a final
+`# Summary` page. Put the summary after all its lessons and before the next
+module. This reading-only summary has no playground destruction marker.
 
-The outline is a starting point. Split broad objectives into several modules
-when writing content. Keep every objective covered and update the manifest and
-curriculum map together.
+Explain mechanisms, responsible components, realistic examples and the limits
+of each claim. Include worked reasoning and relevant failure cases. Avoid thin
+outlines, repetitive filler and invented command output. Split broad topics when
+needed; do not force a fixed number of lessons. The shared plain-English,
+self-contained-page and Mermaid rules apply throughout.
 
-### Preparation status
+### Reusable question data
 
-This is the first preparation commit. The introduction and section files are
-placeholders. Technical sections carry `draft: true` until their material is
-written and reviewed. There are no runnable playgrounds, graded labs, quizzes,
-or tested reference solutions yet. Do not claim that any environment has been
-installed or verified.
+Write original single-choice questions as YAML banks under section folders and
+`assessments/`. Use the versioned contract in `schemas/question-bank.schema.json`
+and teaching order in `assessments/index.yaml`. Each bank has 5–15 questions with
+stable IDs, one correct option, per-option feedback, a measurable learning
+objective and source reading paths for author traceability.
 
-The path registration stays draft until content is ready for publication.
+Do not register YAML as a Markdown reading. A future renderer consumes the bank
+index and presents the checkpoint after its declared reading, preserving bank
+order when several share an anchor. Do not expose answer keys before submission
+in a production quiz interface. These public banks are practice material, not
+secure or official exam questions.
 
-### Environment plans and terminology
+### Review and authoring checks
 
-Plan instrumented sample services, an OpenTelemetry Collector and a local telemetry backend. Select an SDK language and record compatible versions during authoring.
+Preserve the shared CLAUDE.md prefix copied from ATS015. Keep course IDs, official
+domain weights and ATP links unchanged. Technical pages have `draft: true` in
+Markdown front matter until review; a module-level flag alone is insufficient.
+The ATP registration remains draft until publication is approved.
 
-Define acronyms and use the technology's own terms. Example workload names may
-use `bridge`, `scout`, `shuttle`, `probe`, `starfleet` and `outpost` when an
-application helps teach the objective. Build only the workloads needed for the
-exercise. Do not copy Istio-specific images, ports, identities, API objects or
-version pins from ATS015 into an unrelated domain.
-
-### Course and lab metadata
-
-The introduction is first in `astrona.yaml`, followed by the planned sections.
-Each section starts with its overview, then its modules. When a module is built,
-add short reading parts, a playground if it needs one, labs immediately after
-the parts they practise, and a final summary. The summary ends with
-`<!-- astrona:playground:destroy -->` when the module has a playground.
-
-Every future lab needs `difficulty`, `estimated_duration`, `topic`, `task_kind`,
-`tags`, `learning_goals` and `resources`. Difficulty is `beginner`, `intermediate`
-or `advanced`. Task kind is `build`, `troubleshooting` or `migration`. Use
-`the-opentelemetry-collector` as the initial topic. Extend the topic list only when a
-module needs a distinct learner-facing filter.
-
-Initial tag vocabulary: `otca`, `the-opentelemetry-collector`. Add the actual
-resource, protocol and tool names before creating a lab; each lab needs 4 to 8
-relevant tags. Use 2 or 3 learning goals beginning with verbs and 1 to 4 official
-documentation resources. Never invent a quiz answer or command output.
-
-### Running things when environments exist
-
-These are the naming conventions for future environments, not runnable examples
-in this preparation commit:
-
-- Playground: `ats-075-playground-<section>-<module>`.
-- Lab: `ats-075-lab-<section>-<module>-<lab>`.
-- Repository: `ssh://git@github.com/astrona-io/ATS075.git`.
-- Local author commands: `astrona run -c <environment-path>`,
-  `astrona validate -c <environment-path>` and `astrona test -c <lab-path>`.
-- Learner commands: `astrona run --git ssh://git@github.com/astrona-io/ATS075.git -c <environment-path>`,
-  `astrona submit -c <lab-path>` and `astrona destroy <metadata.name>`.
-
-Confirm command flags with the installed CLI before documenting them. Every
-completed lab must pass validation and its reference-solution check. Grade the
-behaviour the task asks for. Never pin a bootstrap script to a maintainer's kube
-context. Run one test cluster at a time on the maintainer's machine and never
-touch an environment you did not create.
-
-### Trusted sources
-
-The curriculum source was checked on 2026-10-10. Recheck it before authoring and
-record tool versions when environments are built. Official documentation is for
-author research; learner pages follow the shared rules for outside links.
-
-- <https://training.linuxfoundation.org/certification/opentelemetry-certified-associate-otca/>
-- <https://opentelemetry.io/docs/>
-
-### Authoring workflow
-
-Plan the domain, refine its outline, build one module at a time, then write and
-check its labs, playground, quiz and assessment. The `astrona-course-*` skills
-may support these jobs when installed. Preparation does not imply they have
-been run. Keep lessons and environments as placeholders until the maintainer
-starts content authoring.
+Primary author sources are recorded in `SOURCES.md`. The objective list was
+verified on 2026-10-11. Detailed reading expansions were written on 2026-10-11.
+Validate manifest paths, summary ordering, curriculum coverage and question
+contracts. Do not claim runtime verification for a reading-only course.

@@ -1,18 +1,19 @@
-# ATS075 — OTCA: The OpenTelemetry Collector
+# The OpenTelemetry Collector (ATS075)
 
-Preparation for the **The OpenTelemetry Collector** domain of **OpenTelemetry Certified Associate (OTCA)**.
-The published domain weight is **26%**. This repository belongs to
-the [ATP015 training path](https://github.com/astrona-io/ATP015).
+OpenTelemetry Certified Associate (OTCA): The OpenTelemetry Collector, worth 26% of the official curriculum. This course belongs to ATP015.
 
-**Status:** Preparation scaffold; content authoring has not started.
+Developed reading explains mechanisms, responsible components, examples and limits. Every section has an introduction and every module closes with a summary. Reusable YAML checks contain 5–15 questions per bank. Technical content remains draft. No labs or playgrounds are included.
 
-The initial commit reserves the curriculum structure. Lessons, playgrounds,
-labs and assessments are planned and are not ready for learner use.
+## Course Outline
 
-See [CURRICULUM.md](CURRICULUM.md) for the objective map and authoring checklist,
-[astrona.yaml](astrona.yaml) for the course manifest, and
-[CLAUDE.md](CLAUDE.md) for writing and environment rules.
+| Section / module | Module | Teaching files |
+| --- | --- | --- |
+| 010 / 01 | Component Definitions, Enabled Pipelines And Distribution Support | Component Definitions, Enabled Pipelines And Distribution Support |
+| 020 / 01 | Agent And Gateway Tiers, Ownership And Failure Domains | Agent And Gateway Tiers, Ownership And Failure Domains |
+| 030 / 01 | Capacity Signals, Sharding And Stateful Processing | Capacity Signals, Sharding And Stateful Processing |
+| 040 / 01 | Signal Paths, Shared Components And Export Fan-Out | Signal Paths, Shared Components And Export Fan-Out |
+| 050 / 01 | Attribute Changes, Filtering And Transformation Safety | Attribute Changes, Filtering And Transformation Safety |
 
-Curriculum source: [official OTCA page](https://training.linuxfoundation.org/certification/opentelemetry-certified-associate-otca/), checked 2026-10-10.
-License: [Apache-2.0](LICENSE). Curriculum objectives retain attribution to
-The Linux Foundation and CNCF; see [CNCF curriculum licensing](https://github.com/cncf/curriculum).
+## Author Review
+
+See [curriculum coverage](CURRICULUM.md), [primary sources](SOURCES.md), [question-bank documentation](ASSESSMENTS.md) and [contribution instructions](CONTRIBUTING.md). No runtime execution is claimed.
