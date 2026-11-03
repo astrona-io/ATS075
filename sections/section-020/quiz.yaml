@@ -1,0 +1,233 @@
+# Knowledge check for section 020. Listed in astrona.yaml as a `type: quiz` entry after the capstone lab.
+schema_version: 1
+kind: question_bank
+id: ats075-020
+course_id: ATS075
+exam_code: OTCA
+status: draft
+provenance: Original practice material written for this course; not official exam questions.
+scope:
+  type: section
+  id: section-020
+  title: Deployment
+questions:
+- id: ats075-020-q01
+  type: single_choice
+  difficulty: beginner
+  learning_objective: Compare agent patterns by failure domain
+  source_readings:
+  - sections/section-020/module-01/course-01-agent-topologies-sidecar-daemonset-and-direct-export.md
+  prompt: 'A cluster runs one Collector agent as a DaemonSet pod on every node. One agent pod crashes and restarts. Which senders lose data?'
+  options:
+  - id: a
+    text: 'Only the senders on the node of that pod, for the time the pod is not ready.'
+    explanation: 'Correct. The failure domain is one node.'
+  - id: b
+    text: 'All senders in the cluster, because the agents share one queue.'
+    explanation: 'Agents do not share a queue; each has its own memory.'
+  - id: c
+    text: 'Only the senders in the same namespace as the pod, on any node.'
+    explanation: 'The pod serves its node, not a namespace.'
+  - id: d
+    text: 'No sender, because the Service sends the data to another node at once.'
+    explanation: 'With `internalTrafficPolicy: Local` there is no fallback to another node.'
+  correct_option: a
+  explanation: 'A node-local agent serves one node. The failure domain is that node. Data held in the memory of the stopped pod is lost.'
+- id: ats075-020-q02
+  type: single_choice
+  difficulty: beginner
+  learning_objective: Route traffic to the agent on the same node
+  source_readings:
+  - sections/section-020/module-01/course-01-agent-topologies-sidecar-daemonset-and-direct-export.md
+  prompt: 'Which Service setting keeps a request from an application on traffic to the agent that runs on the same node?'
+  options:
+  - id: a
+    text: '`type: LoadBalancer`'
+    explanation: 'That exposes the Service outside the cluster and does not select a node.'
+  - id: b
+    text: '`internalTrafficPolicy: Local`'
+    explanation: 'Correct. It limits endpoints to the local node.'
+  - id: c
+    text: '`sessionAffinity: ClientIP`'
+    explanation: 'That pins a client to one endpoint, which can be on any node.'
+  - id: d
+    text: '`publishNotReadyAddresses: true`'
+    explanation: 'That publishes endpoints that are not ready; it does not select a node.'
+  correct_option: b
+  explanation: '`internalTrafficPolicy: Local` limits in-cluster traffic to the endpoints on the node of the sender.'
+- id: ats075-020-q03
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Explain the permission needed by k8sattributes
+  source_readings:
+  - sections/section-020/module-01/course-02-enriching-telemetry-at-the-edge.md
+  prompt: 'The `k8sattributes` processor is configured, but spans leave the agent with only `service.name`, and the agent log has errors that contain `forbidden`. What is the most likely cause?'
+  options:
+  - id: a
+    text: 'The batch processor is listed before the memory limiter.'
+    explanation: 'Order of those processors does not cause API errors.'
+  - id: b
+    text: 'The debug exporter has the wrong verbosity.'
+    explanation: 'Verbosity changes only how much is printed.'
+  - id: c
+    text: 'The service account of the agent has no `get`, `list` and `watch` rights on pods and namespaces.'
+    explanation: 'Correct. The cache cannot be filled without those rights.'
+  - id: d
+    text: 'The sender must send the pod name as an attribute first.'
+    explanation: 'The processor adds the pod name; the sender does not have to.'
+  correct_option: c
+  explanation: 'The processor fills its cache from the Kubernetes API. Without read access the cache stays empty and the pipeline passes telemetry through without the attributes.'
+- id: ats075-020-q04
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Describe pod association by connection
+  source_readings:
+  - sections/section-020/module-01/course-02-enriching-telemetry-at-the-edge.md
+  prompt: 'An agent uses a pod association rule with `from: connection`. Why does this work at the agent but not behind a proxy or a gateway?'
+  options:
+  - id: a
+    text: 'The connection source address is the pod address only when the request reaches the Collector directly from the pod.'
+    explanation: 'Correct. A hop in between changes the source address.'
+  - id: b
+    text: 'Connections are always encrypted at the agent, so the processor can read the pod name.'
+    explanation: 'Encryption is not the reason; the address is.'
+  - id: c
+    text: 'A gateway removes all attributes from every request.'
+    explanation: 'A gateway does not remove attributes on its own.'
+  - id: d
+    text: 'The rule reads the node name, which a gateway does not know.'
+    explanation: 'The rule matches the pod by address, not the node name.'
+  correct_option: a
+  explanation: 'The rule looks up the source IP address of the connection in the pod cache. A proxy or a gateway replaces that address with its own.'
+- id: ats075-020-q05
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Explain the override option of resourcedetection
+  source_readings:
+  - sections/section-020/module-01/course-03-resource-attributes-host-metrics-and-failure-domains.md
+  prompt: 'An application sets `service.name` itself. The agent runs `resourcedetection` with the default value of `override`. What happens to attributes that detection also produces?'
+  options:
+  - id: a
+    text: 'Detected values are discarded, because the sender always wins.'
+    explanation: 'That is the behavior with `override: false`, not the default.'
+  - id: b
+    text: 'Detected values replace the values the sender set.'
+    explanation: 'Correct. The default is `true`.'
+  - id: c
+    text: 'The telemetry is dropped because of the conflict.'
+    explanation: 'Conflicts do not drop telemetry.'
+  - id: d
+    text: 'The agent adds a second copy under another key.'
+    explanation: 'Attributes are keyed; there is no second copy.'
+  correct_option: b
+  explanation: 'The default for `override` is `true`, so detected values replace those from the sender. Setting it to `false` keeps the sender values.'
+- id: ats075-020-q06
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Place memory_limiter in a pipeline
+  source_readings:
+  - sections/section-020/module-01/course-03-resource-attributes-host-metrics-and-failure-domains.md
+  prompt: 'Where should `memory_limiter` sit in a pipeline, and how should its limit relate to the container memory limit?'
+  options:
+  - id: a
+    text: 'Last in the list, with a limit above the container limit.'
+    explanation: 'A limit above the container limit is never reached before the kernel acts.'
+  - id: b
+    text: 'In the middle, with a limit equal to the container limit.'
+    explanation: 'The order should be first, and the limit lower than the container limit.'
+  - id: c
+    text: 'First in the list, with a limit below the container limit.'
+    explanation: 'Correct. First, and below the container limit.'
+  - id: d
+    text: 'It is not needed when a batch processor is used.'
+    explanation: 'Batch does not limit memory use.'
+  correct_option: c
+  explanation: 'The limiter must act before more work is done on the data, and it must trigger before the kernel stops the container.'
+- id: ats075-020-q07
+  type: single_choice
+  difficulty: beginner
+  learning_objective: State why a gateway is a Deployment
+  source_readings:
+  - sections/section-020/module-02/course-01-deploying-a-gateway-and-exporting-to-it.md
+  prompt: 'Why is a gateway normally run as a Deployment with a Service and not as a DaemonSet?'
+  options:
+  - id: a
+    text: 'A DaemonSet cannot run the Collector image.'
+    explanation: 'A DaemonSet runs any image.'
+  - id: b
+    text: 'A Deployment is the only workload that can read a ConfigMap.'
+    explanation: 'Both can read a ConfigMap.'
+  - id: c
+    text: 'The gateway needs one pod per node to read host metrics.'
+    explanation: 'That describes an agent, not a gateway.'
+  - id: d
+    text: 'It holds no node-bound state, receives data over the network, and any replica can serve any request.'
+    explanation: 'Correct. The gateway is stateless and not node-bound.'
+  correct_option: d
+  explanation: 'A gateway is stateless and not tied to a node, so a Deployment with a Service gives replaceable replicas and a stable name.'
+- id: ats075-020-q08
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Keep credentials in the gateway
+  source_readings:
+  - sections/section-020/module-02/course-02-centralising-credentials-and-securing-the-hop.md
+  prompt: 'Which approach keeps the backend password out of the Collector ConfigMap while the gateway can still use it?'
+  options:
+  - id: a
+    text: 'Put the password in the container `args`.'
+    explanation: 'Arguments are visible with `kubectl describe pod`.'
+  - id: b
+    text: 'Store it in a Secret, expose it with `secretKeyRef` as an environment variable and refer to `${env:NAME}` in the configuration.'
+    explanation: 'Correct. The ConfigMap holds only the variable name.'
+  - id: c
+    text: 'Base64 encode the password in the ConfigMap.'
+    explanation: 'Base64 is an encoding, and the ConfigMap is still readable.'
+  - id: d
+    text: 'Give every agent the same password so any tier can use it.'
+    explanation: 'That spreads the secret to every agent.'
+  correct_option: b
+  explanation: 'A Secret plus an environment variable keeps the value out of the ConfigMap. Arguments are visible in the pod description, and base64 is not encryption.'
+- id: ats075-020-q09
+  type: single_choice
+  difficulty: advanced
+  learning_objective: Explain what an in-memory queue protects
+  source_readings:
+  - sections/section-020/module-02/course-03-buffering-retry-and-availability-between-tiers.md
+  prompt: 'The gateway has a sending queue of 5000 requests in memory and a retry limit of 120 seconds. The backend is down for ten minutes. What is the expected result for the data that arrived in the first minute?'
+  options:
+  - id: a
+    text: 'It is kept in the queue until the backend returns, however long that takes.'
+    explanation: 'The retry time is finite, so waiting is not endless.'
+  - id: b
+    text: 'It is moved to disk on the node automatically.'
+    explanation: 'A memory queue is not written to disk. That needs a persistent queue.'
+  - id: c
+    text: 'It is delivered once, because the agent sends it again after ten minutes.'
+    explanation: 'The agent already got a success reply and does not send it again.'
+  - id: d
+    text: 'Batches whose retry time passed 120 seconds are dropped, and the log reports it.'
+    explanation: 'Correct. Data older than the retry limit is dropped.'
+  correct_option: d
+  explanation: 'Retry gives up for a batch after `max_elapsed_time`. A memory queue does not keep data without limit, and it is lost when the pod stops.'
+- id: ats075-020-q10
+  type: single_choice
+  difficulty: advanced
+  learning_objective: Explain connection balancing and stateful processing
+  source_readings:
+  - sections/section-020/module-02/course-03-buffering-retry-and-availability-between-tiers.md
+  prompt: 'Which statement about running several gateway replicas behind one Service is correct?'
+  options:
+  - id: a
+    text: 'A Service balances connections, so long-lived gRPC connections can leave the load uneven.'
+    explanation: 'Correct. Balancing is per connection.'
+  - id: b
+    text: 'A Service sends each span of one trace to the same replica by trace ID.'
+    explanation: 'A Service does not route by trace ID.'
+  - id: c
+    text: 'Two replicas double the retry time of every batch.'
+    explanation: 'Replicas do not change the retry time.'
+  - id: d
+    text: 'A second replica lets a persistent queue be skipped without any data loss on restart.'
+    explanation: 'Replicas do not recover data that sits in the memory of a pod that stops.'
+  correct_option: a
+  explanation: 'A Service balances at the connection level. Tail sampling needs routing by trace ID, which a plain Service does not do.'

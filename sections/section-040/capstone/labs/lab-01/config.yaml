@@ -1,0 +1,82 @@
+# yaml-language-server: $schema=https://cli.astrona.io/schema/lab-config.schema.json
+#
+# Pipelines capstone: repair a gateway Collector (LAB). Graded against the live cluster.
+apiVersion: astrona.io/v1
+metadata:
+  name: ats-075-capstone-040
+  docs:
+    prerequisites: prerequisites.md
+    question: question.md
+    solution: solution.md
+
+runtime:
+  type: kind
+  kind:
+    image: kindest/node:v1.35.8
+    preloadImages:
+      - otel/opentelemetry-collector-contrib:0.162.0
+      - curlimages/curl:8.22.0
+
+# Starting state: the gateway does not start, because the connector count is a
+# receiver of the metrics pipeline but no pipeline exports to it. There are
+# more faults behind it: the backend exporter and the redaction processor are
+# not used, the archive exporter has no sending queue and there is no logs pipeline.
+bootstrap:
+  init:
+    - name: seed-cluster
+      description: Create the failing gateway Collector, the backend Collector and the curl client
+      type: file
+      source: bootstrap/01-seed-cluster.sh
+
+# Applied only by `astrona test`: the reference solution.
+testing:
+  init:
+    - name: apply-solution
+      description: Apply the reference solution
+      type: file
+      source: solution/apply.sh
+    - name: wait-for-settled
+      description: Wait until the restarted gateway is healthy
+      type: file
+      source: testing/wait-for-settled.sh
+
+validation:
+  scripts:
+    - name: gateway-healthy
+      description: The gateway Deployment is available and its health check answers 200
+      type: file
+      source: validation/validate-gateway-healthy.sh
+      hint: Read kubectl -n starfleet logs deploy/gateway. A connector must be an exporter in one pipeline and a receiver in another pipeline of a supported signal pair.
+    - name: trace-fanout
+      description: Traces are answered quickly and reach the debug exporter and the backend
+      type: file
+      source: validation/validate-trace-fanout.sh
+      hint: The traces pipeline must export to otlphttp/backend and debug, and answer a sender within 10 seconds even though the archive address does not exist.
+    - name: redaction
+      description: The value of user.email is removed before any exporter sees it
+      type: file
+      source: validation/validate-redaction.sh
+      hint: List attributes/redact in the processors of the traces pipeline.
+    - name: archive-queue
+      description: otlphttp/archive still runs and has a sending queue
+      type: file
+      source: validation/validate-archive-queue.sh
+      hint: Enable the sending queue of otlphttp/archive and keep the exporter in the traces pipeline.
+    - name: logs-pipeline
+      description: Log records reach the backend through a logs pipeline
+      type: file
+      source: validation/validate-logs-pipeline.sh
+      hint: Add a pipeline logs with the receiver otlp and the exporter otlphttp/backend.
+    - name: metrics-pipeline
+      description: A metric sent over OTLP reaches the backend through the metrics pipeline
+      type: file
+      source: validation/validate-metrics-pipeline.sh
+      hint: The metrics pipeline needs the receivers otlp and count and an exporter otlphttp/backend.
+    - name: span-count
+      description: The count connector turns spans into the metric trace.span.count at the backend
+      type: file
+      source: validation/validate-count-metric.sh
+      hint: Add count to the exporters of the traces pipeline.
+
+teardown:
+  keepCluster: false

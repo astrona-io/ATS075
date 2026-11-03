@@ -1,9 +1,9 @@
-# Reading-only content; YAML knowledge checks have a separate index.
+# Course manifest for ATS075. Each section lists its README, modules (landing, parts, lab Question reading and lab entry after the part tested, summary), a capstone and a quiz.
 training:
   id: ATS075
   title: 'OTCA: The OpenTelemetry Collector'
-  description: 'Detailed reading material and reusable YAML knowledge checks for OTCA: The OpenTelemetry
-    Collector. Technical content remains draft. No labs or playgrounds.'
+  description: Concept lessons, diagrams, playgrounds, graded labs, capstones and original scenario quizzes
+    covering every published objective in this OTCA domain. Labs run on kind (Kubernetes 1.35). Technical content remains draft.
   certification:
     name: OpenTelemetry Certified Associate
     code: OTCA
@@ -17,104 +17,609 @@ training:
     - Pipelines
     - Transforming Data
 modules:
-- id: module-intro
-  title: Introduction
-  description: Audience, reading method and review process.
-  content:
-  - type: reading
+  - id: module-intro
     title: Introduction
-    path: sections/intro/README.md
-  - type: reading
-    title: Welcome To The Course
-    path: sections/intro/course-01-welcome.md
-  - type: reading
-    title: Get Your Machine Ready
-    path: sections/intro/course-02-get-your-machine-ready.md
-  - type: reading
-    title: How This Course Is Made
-    path: sections/intro/course-03-how-this-course-is-made.md
-- id: module-010
-  title: Configuration
-  description: Developed reading and reasoning for Configuration.
-  maturity: alpha
-  content:
-  - type: reading
-    title: Configuration
-    path: sections/section-010/README.md
-  - type: reading
-    title: Component Definitions, Enabled Pipelines And Distribution Support
-    path: sections/section-010/module-01/course.md
-  - type: reading
-    title: Component Definitions, Enabled Pipelines And Distribution Support
-    path: sections/section-010/module-01/course-01-component-definitions-enabled-pipelines-and-distribution-support.md
-  - type: reading
-    title: Summary
-    path: sections/section-010/module-01/course-02-summary.md
-- id: module-020
-  title: Deployment
-  description: Developed reading and reasoning for Deployment.
-  maturity: alpha
-  content:
-  - type: reading
-    title: Deployment
-    path: sections/section-020/README.md
-  - type: reading
-    title: Agent And Gateway Tiers, Ownership And Failure Domains
-    path: sections/section-020/module-01/course.md
-  - type: reading
-    title: Agent And Gateway Tiers, Ownership And Failure Domains
-    path: sections/section-020/module-01/course-01-agent-and-gateway-tiers-ownership-and-failure-domains.md
-  - type: reading
-    title: Summary
-    path: sections/section-020/module-01/course-02-summary.md
-- id: module-030
-  title: Scaling
-  description: Developed reading and reasoning for Scaling.
-  maturity: alpha
-  content:
-  - type: reading
-    title: Scaling
-    path: sections/section-030/README.md
-  - type: reading
-    title: Capacity Signals, Sharding And Stateful Processing
-    path: sections/section-030/module-01/course.md
-  - type: reading
-    title: Capacity Signals, Sharding And Stateful Processing
-    path: sections/section-030/module-01/course-01-capacity-signals-sharding-and-stateful-processing.md
-  - type: reading
-    title: Summary
-    path: sections/section-030/module-01/course-02-summary.md
-- id: module-040
-  title: Pipelines
-  description: Developed reading and reasoning for Pipelines.
-  maturity: alpha
-  content:
-  - type: reading
-    title: Pipelines
-    path: sections/section-040/README.md
-  - type: reading
-    title: Signal Paths, Shared Components And Export Fan-Out
-    path: sections/section-040/module-01/course.md
-  - type: reading
-    title: Signal Paths, Shared Components And Export Fan-Out
-    path: sections/section-040/module-01/course-01-signal-paths-shared-components-and-export-fan-out.md
-  - type: reading
-    title: Summary
-    path: sections/section-040/module-01/course-02-summary.md
-- id: module-050
-  title: Transforming Data
-  description: Developed reading and reasoning for Transforming Data.
-  maturity: alpha
-  content:
-  - type: reading
-    title: Transforming Data
-    path: sections/section-050/README.md
-  - type: reading
-    title: Attribute Changes, Filtering And Transformation Safety
-    path: sections/section-050/module-01/course.md
-  - type: reading
-    title: Attribute Changes, Filtering And Transformation Safety
-    path: sections/section-050/module-01/course-01-attribute-changes-filtering-and-transformation-safety.md
-  - type: reading
-    title: Summary
-    path: sections/section-050/module-01/course-02-summary.md
+    description: Audience, reading method and review process.
+    content:
+    - type: reading
+      title: Introduction
+      path: sections/intro/README.md
+    - type: reading
+      title: Welcome To The Course
+      path: sections/intro/course-01-welcome.md
+    - type: reading
+      title: Get Your Machine Ready
+      path: sections/intro/course-02-get-your-machine-ready.md
+    - type: reading
+      title: How This Course Is Made
+      path: sections/intro/course-03-how-this-course-is-made.md
+  - id: module-010
+    title: "Configuration"
+    description: >
+      Makes the reader able to read, write and change an OpenTelemetry
+      Collector configuration. It covers component definitions and
+      pipelines, environment values, several configuration files, secrets,
+      extensions, named instances and validation before a restart.
+
+    content:
+      - type: reading
+        title: Section Overview
+        path: sections/section-010/README.md
+
+      - type: reading
+        title: "Component Definitions And Enabled Pipelines"
+        path: sections/section-010/module-01/course.md
+      - type: reading
+        title: "Definitions And Enabled Pipelines"
+        path: sections/section-010/module-01/course-01-definitions-and-enabled-pipelines.md
+      - type: reading
+        title: "Signals, Processors And Exporters In A Pipeline"
+        path: sections/section-010/module-01/course-02-signals-processors-and-exporters-in-a-pipeline.md
+      - type: reading
+        title: "Distributions, Validation And Listener Endpoints"
+        path: sections/section-010/module-01/course-03-distributions-validation-and-listener-endpoints.md
+      - type: reading
+        title: Question
+        path: sections/section-010/module-01/labs/lab-01/question.md
+      - type: lab
+        title: "Fix A Collector Configuration Lab"
+        path: sections/section-010/module-01/labs/lab-01
+        difficulty: intermediate
+        estimated_duration: 25m
+        topic: collector-configuration
+        task_kind: fix
+        tags: [collector, pipeline, receiver, exporter, otlp, listener-endpoint, validate]
+        learning_goals:
+          - Bind a receiver to a reachable address and enable an exporter through a pipeline
+          - Add pipelines so that traces, metrics and logs reach the gateway
+          - Prove the result from the gateway logs
+        resources:
+          - name: "Collector configuration"
+            url: https://opentelemetry.io/docs/collector/configuration/
+          - name: "Collector components"
+            url: https://opentelemetry.io/docs/collector/components/
+          - name: "Collector distributions"
+            url: https://opentelemetry.io/docs/collector/distributions/
+      - type: reading
+        title: Summary
+        path: sections/section-010/module-01/course-04-summary.md
+
+      - type: reading
+        title: "Configuration Sources, Environment Values And Extensions"
+        path: sections/section-010/module-02/course.md
+      - type: reading
+        title: "Environment Variables In Configuration"
+        path: sections/section-010/module-02/course-01-environment-variables-in-configuration.md
+      - type: reading
+        title: "Several Files, Providers And Secrets"
+        path: sections/section-010/module-02/course-02-several-files-providers-and-secrets.md
+      - type: reading
+        title: "Extensions, Named Instances And Validation"
+        path: sections/section-010/module-02/course-03-extensions-named-instances-and-validation.md
+      - type: reading
+        title: Question
+        path: sections/section-010/module-02/labs/lab-01/question.md
+      - type: lab
+        title: "Fix Sources, Secrets And Extensions Lab"
+        path: sections/section-010/module-02/labs/lab-01
+        difficulty: intermediate
+        estimated_duration: 30m
+        topic: collector-configuration
+        task_kind: fix
+        tags: [collector, environment-variable, secret, config-merge, health-check, extension, named-instance]
+        learning_goals:
+          - Replace a literal token and a literal value with environment references
+          - Enable the health_check extension and add a second receiver instance
+          - Keep the primary receiver working when an override file changes a list
+        resources:
+          - name: "Collector configuration"
+            url: https://opentelemetry.io/docs/collector/configuration/
+          - name: "Environment variables in configuration"
+            url: https://opentelemetry.io/docs/collector/configuration/#environment-variables
+          - name: "health_check extension"
+            url: https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/extension/healthcheckextension
+      - type: reading
+        title: Summary
+        path: sections/section-010/module-02/course-04-summary.md
+
+      - type: reading
+        title: Question
+        path: sections/section-010/capstone/labs/lab-01/question.md
+      - type: lab
+        title: "Configuration Capstone"
+        path: sections/section-010/capstone/labs/lab-01
+        difficulty: advanced
+        estimated_duration: 40m
+        topic: collector-configuration
+        task_kind: fix
+        tags: [collector, pipeline, listener-endpoint, secret, environment-variable, config-merge, health-check, named-instance]
+        learning_goals:
+          - Repair a listener endpoint, a literal secret, a disabled extension and an override that replaces a list
+          - Validate the merged files before restarting the agent
+          - Prove that all three signals reach the gateway
+        resources:
+          - name: "Collector configuration"
+            url: https://opentelemetry.io/docs/collector/configuration/
+          - name: "Collector components"
+            url: https://opentelemetry.io/docs/collector/components/
+      - type: quiz
+        title: "Knowledge Check: Configuration"
+        path: sections/section-010/quiz.yaml
+        pass_score: 70
+
+  - id: module-020
+    title: "Deployment"
+    description: >
+      Makes the reader able to choose where Collectors run in a Kubernetes
+      cluster and what each tier owns. It covers the agent patterns (sidecar,
+      DaemonSet and direct export) with edge enrichment, host metrics and
+      failure domains, and the gateway tier with agent-to-gateway export,
+      central credentials, buffering, retry and replicas.
+
+    content:
+      - type: reading
+        title: Section Overview
+        path: sections/section-020/README.md
+
+      - type: reading
+        title: "Agent Deployment Patterns"
+        path: sections/section-020/module-01/course.md
+      - type: reading
+        title: "Agent Topologies: Sidecar, DaemonSet And Direct Export"
+        path: sections/section-020/module-01/course-01-agent-topologies-sidecar-daemonset-and-direct-export.md
+      - type: reading
+        title: "Enriching Telemetry At The Edge"
+        path: sections/section-020/module-01/course-02-enriching-telemetry-at-the-edge.md
+      - type: reading
+        title: "Resource Attributes, Host Metrics And Failure Domains"
+        path: sections/section-020/module-01/course-03-resource-attributes-host-metrics-and-failure-domains.md
+      - type: reading
+        title: Question
+        path: sections/section-020/module-01/labs/lab-01/question.md
+      - type: lab
+        title: "Configure A Collector Agent At The Edge Lab"
+        path: sections/section-020/module-01/labs/lab-01
+        difficulty: intermediate
+        estimated_duration: 25m
+        topic: collector-deployment
+        task_kind: build
+        tags: [daemonset-agent, k8sattributes, resourcedetection, hostmetrics, memory-limiter, rbac, downward-api]
+        learning_goals:
+          - Grant a Collector agent read-only access to pods and namespaces and add Kubernetes attributes with k8sattributes
+          - Add environment and host attributes with resourcedetection without overwriting sender values
+          - Collect node metrics with hostmetrics and keep memory_limiter first in every pipeline
+        resources:
+          - name: "Collector deployment: agent pattern"
+            url: https://opentelemetry.io/docs/collector/deployment/agent/
+          - name: "k8sattributes processor"
+            url: https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/processor/k8sattributesprocessor
+          - name: "resourcedetection processor"
+            url: https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/processor/resourcedetectionprocessor
+          - name: "hostmetrics receiver"
+            url: https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/hostmetricsreceiver
+      - type: reading
+        title: Summary
+        path: sections/section-020/module-01/course-04-summary.md
+
+      - type: reading
+        title: "Gateway Deployment And Agent-To-Gateway Export"
+        path: sections/section-020/module-02/course.md
+      - type: reading
+        title: "Deploying A Gateway And Exporting To It"
+        path: sections/section-020/module-02/course-01-deploying-a-gateway-and-exporting-to-it.md
+      - type: reading
+        title: "Centralising Credentials And Securing The Hop"
+        path: sections/section-020/module-02/course-02-centralising-credentials-and-securing-the-hop.md
+      - type: reading
+        title: "Buffering, Retry And Availability Between Tiers"
+        path: sections/section-020/module-02/course-03-buffering-retry-and-availability-between-tiers.md
+      - type: reading
+        title: Question
+        path: sections/section-020/module-02/labs/lab-01/question.md
+      - type: lab
+        title: "Put A Gateway Between The Agents And The Backend Lab"
+        path: sections/section-020/module-02/labs/lab-01
+        difficulty: intermediate
+        estimated_duration: 30m
+        topic: collector-deployment
+        task_kind: build
+        tags: [gateway, otlphttp, basicauth, secret, sending-queue, retry, replicas, memory-limiter]
+        learning_goals:
+          - Deploy a two-replica gateway with a Service and export from the agent to it
+          - Move the backend credentials from the agent into the gateway through a Secret and an environment variable
+          - Configure a sending queue, retry and memory limiter on the gateway
+        resources:
+          - name: "Collector deployment: gateway pattern"
+            url: https://opentelemetry.io/docs/collector/deployment/gateway/
+          - name: "Collector configuration"
+            url: https://opentelemetry.io/docs/collector/configuration/
+          - name: "Collector resiliency"
+            url: https://opentelemetry.io/docs/collector/resiliency/
+          - name: "Collector security best practices"
+            url: https://opentelemetry.io/docs/security/config-best-practices/
+      - type: reading
+        title: Summary
+        path: sections/section-020/module-02/course-04-summary.md
+
+      - type: reading
+        title: Question
+        path: sections/section-020/capstone/labs/lab-01/question.md
+      - type: lab
+        title: "Deployment Capstone"
+        path: sections/section-020/capstone/labs/lab-01
+        difficulty: advanced
+        estimated_duration: 40m
+        topic: collector-deployment
+        task_kind: build
+        tags: [agent, gateway, k8sattributes, resourcedetection, basicauth, secret, rbac, end-to-end]
+        learning_goals:
+          - Enrich telemetry at the DaemonSet agent and export it to a gateway
+          - Keep the backend credentials only in the gateway
+          - Prove the full path from application to backend with enriched spans
+        resources:
+          - name: "Collector deployment patterns"
+            url: https://opentelemetry.io/docs/collector/deployment/
+          - name: "Collector configuration"
+            url: https://opentelemetry.io/docs/collector/configuration/
+          - name: "Collector resiliency"
+            url: https://opentelemetry.io/docs/collector/resiliency/
+      - type: quiz
+        title: "Knowledge Check: Deployment"
+        path: sections/section-020/quiz.yaml
+        pass_score: 70
+
+  - id: module-030
+    title: "Scaling"
+    description: >
+      Makes the reader able to tell what limits a Collector and to scale
+      it without losing or duplicating data: self-telemetry, queues,
+      retries and the memory limiter, resource limits, replicas behind a
+      Service, trace ID routing for tail sampling and sharded scraping.
+
+    content:
+      - type: reading
+        title: Section Overview
+        path: sections/section-030/README.md
+
+      - type: reading
+        title: "Capacity Signals And Protecting The Collector"
+        path: sections/section-030/module-01/course.md
+      - type: reading
+        title: "Reading The Collector's Own Metrics"
+        path: sections/section-030/module-01/course-01-reading-the-collectors-own-metrics.md
+      - type: reading
+        title: "Queues, Retries And Memory Limits"
+        path: sections/section-030/module-01/course-02-queues-retries-and-memory-limits.md
+      - type: reading
+        title: Question
+        path: sections/section-030/module-01/labs/lab-01/question.md
+      - type: lab
+        title: "Protect The Gateway Lab"
+        path: sections/section-030/module-01/labs/lab-01
+        difficulty: intermediate
+        estimated_duration: 25m
+        topic: collector-scaling
+        task_kind: fix
+        tags: [self-telemetry, sending-queue, retry, memory-limiter, batch, gateway]
+        learning_goals:
+          - Expose the Collector self-telemetry and read the exporter queue capacity
+          - Fix a wrong exporter endpoint and enlarge the sending queue
+          - Add a memory limiter below the container limit and a batch processor
+        resources:
+          - name: "Collector internal telemetry"
+            url: https://opentelemetry.io/docs/collector/internal-telemetry/
+          - name: "Collector scaling"
+            url: https://opentelemetry.io/docs/collector/scaling/
+          - name: "Memory limiter processor"
+            url: https://github.com/open-telemetry/opentelemetry-collector/tree/main/processor/memorylimiterprocessor
+      - type: reading
+        title: "Vertical And Horizontal Scaling"
+        path: sections/section-030/module-01/course-03-vertical-and-horizontal-scaling.md
+      - type: reading
+        title: Summary
+        path: sections/section-030/module-01/course-04-summary.md
+
+      - type: reading
+        title: "Sharding And Stateful Processing"
+        path: sections/section-030/module-02/course.md
+      - type: reading
+        title: "Stateless Replicas Behind A Service"
+        path: sections/section-030/module-02/course-01-stateless-replicas-behind-a-service.md
+      - type: reading
+        title: "Routing By Trace ID For Tail Sampling"
+        path: sections/section-030/module-02/course-02-routing-by-trace-id-for-tail-sampling.md
+      - type: reading
+        title: Question
+        path: sections/section-030/module-02/labs/lab-01/question.md
+      - type: lab
+        title: "Route Traces To One Sampler Lab"
+        path: sections/section-030/module-02/labs/lab-01
+        difficulty: intermediate
+        estimated_duration: 25m
+        topic: collector-scaling
+        task_kind: fix
+        tags: [load-balancing-exporter, tail-sampling, trace-id, dns-resolver, headless-service]
+        learning_goals:
+          - Replace a plain exporter with the load balancing exporter keyed by trace ID
+          - Use a headless Service name with the dns resolver
+          - Prove that each trace is held by exactly one sampler pod and that traces spread over both
+        resources:
+          - name: "Load balancing exporter"
+            url: https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/exporter/loadbalancingexporter
+          - name: "Tail sampling processor"
+            url: https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/processor/tailsamplingprocessor
+          - name: "Collector scaling"
+            url: https://opentelemetry.io/docs/collector/scaling/
+      - type: reading
+        title: "Sharding Scrapes And Avoiding Duplicates"
+        path: sections/section-030/module-02/course-03-sharding-scrapes-and-avoiding-duplicates.md
+      - type: reading
+        title: Summary
+        path: sections/section-030/module-02/course-04-summary.md
+
+      - type: reading
+        title: Question
+        path: sections/section-030/capstone/labs/lab-01/question.md
+      - type: lab
+        title: "Scaling Capstone"
+        path: sections/section-030/capstone/labs/lab-01
+        difficulty: advanced
+        estimated_duration: 45m
+        topic: collector-scaling
+        task_kind: build
+        tags: [self-telemetry, memory-limiter, load-balancing-exporter, tail-sampling, prometheus-receiver, hashmod, statefulset]
+        learning_goals:
+          - Protect a gateway with a memory limiter, a larger queue and exposed self-telemetry
+          - Route spans by trace ID so that samplers receive whole traces
+          - Shard a scrape job with hashmod so that each target has one owner
+        resources:
+          - name: "Collector scaling"
+            url: https://opentelemetry.io/docs/collector/scaling/
+          - name: "Prometheus receiver"
+            url: https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/prometheusreceiver
+          - name: "Target Allocator"
+            url: https://github.com/open-telemetry/opentelemetry-operator/tree/main/cmd/otel-allocator
+      - type: quiz
+        title: "Knowledge Check: Scaling"
+        path: sections/section-030/quiz.yaml
+        pass_score: 70
+
+  - id: module-040
+    title: "Pipelines"
+    description: >
+      Makes the reader able to trace telemetry through the pipelines of an
+      OpenTelemetry Collector: pipeline names and signal types, shared and
+      per-pipeline components, fan-out and processor order, connectors, and
+      how the sending queue, retry and backpressure decide what a failing
+      exporter does to the sender and to other exporters.
+
+    content:
+      - type: reading
+        title: Section Overview
+        path: sections/section-040/README.md
+
+      - type: reading
+        title: "Signal Paths, Shared Components And Fan-Out"
+        path: sections/section-040/module-01/course.md
+      - type: reading
+        title: "Signal Paths And Pipeline Names"
+        path: sections/section-040/module-01/course-01-signal-paths-and-pipeline-names.md
+      - type: reading
+        title: "Shared Components And Instances"
+        path: sections/section-040/module-01/course-02-shared-components-and-instances.md
+      - type: reading
+        title: "Fan-Out And Processor Order"
+        path: sections/section-040/module-01/course-03-fan-out-and-processor-order.md
+      - type: reading
+        title: Question
+        path: sections/section-040/module-01/labs/lab-01/question.md
+      - type: lab
+        title: "Wire Pipelines And Order Processors Lab"
+        path: sections/section-040/module-01/labs/lab-01
+        difficulty: intermediate
+        estimated_duration: 30m
+        topic: collector-pipelines
+        task_kind: fix
+        tags: [opentelemetry-collector, pipelines, receivers, processors, exporters, fan-out, attributes-processor]
+        learning_goals:
+          - Add a second exporter to a traces pipeline and prove delivery at the backend
+          - Add a logs pipeline that shares the receiver and the exporter
+          - Put the redaction processor before the batch processor so the backend never receives the email attribute
+        resources:
+          - name: "Collector configuration"
+            url: https://opentelemetry.io/docs/collector/configuration/
+          - name: "Collector architecture"
+            url: https://opentelemetry.io/docs/collector/architecture/
+      - type: reading
+        title: Summary
+        path: sections/section-040/module-01/course-04-summary.md
+
+      - type: reading
+        title: "Connectors, Backpressure And Failure Behavior"
+        path: sections/section-040/module-02/course.md
+      - type: reading
+        title: "Connectors Between Pipelines"
+        path: sections/section-040/module-02/course-01-connectors-between-pipelines.md
+      - type: reading
+        title: "Sending Queue, Retry And Timeout"
+        path: sections/section-040/module-02/course-02-sending-queue-retry-and-timeout.md
+      - type: reading
+        title: "Backpressure And Failing Exporters"
+        path: sections/section-040/module-02/course-03-backpressure-and-failing-exporters.md
+      - type: reading
+        title: Question
+        path: sections/section-040/module-02/labs/lab-01/question.md
+      - type: lab
+        title: "Queue, Retry And Count Connector Lab"
+        path: sections/section-040/module-02/labs/lab-01
+        difficulty: intermediate
+        estimated_duration: 40m
+        topic: collector-backpressure
+        task_kind: fix
+        tags: [opentelemetry-collector, sending-queue, retry, backpressure, connectors, count-connector, otlphttp]
+        learning_goals:
+          - Enable the sending queue on a failing exporter so the sender gets a fast answer
+          - Add the count connector as exporter of traces and receiver of a metrics pipeline
+          - Keep the gateway healthy while one destination is unreachable
+        resources:
+          - name: "Exporter helper settings"
+            url: https://github.com/open-telemetry/opentelemetry-collector/blob/main/exporter/exporterhelper/README.md
+          - name: "Collector connectors"
+            url: https://opentelemetry.io/docs/collector/configuration/#connectors
+          - name: "Collector resiliency"
+            url: https://opentelemetry.io/docs/collector/resiliency/
+      - type: reading
+        title: Summary
+        path: sections/section-040/module-02/course-04-summary.md
+
+      - type: reading
+        title: Section Capstone Question
+        path: sections/section-040/capstone/labs/lab-01/question.md
+      - type: lab
+        title: "Pipelines Capstone Lab"
+        path: sections/section-040/capstone/labs/lab-01
+        difficulty: advanced
+        estimated_duration: 40m
+        topic: collector-pipelines
+        task_kind: troubleshoot
+        tags: [opentelemetry-collector, pipelines, connectors, sending-queue, fan-out, troubleshooting, capstone]
+        learning_goals:
+          - Read the start error of a crash-looping Collector and repair the connector wiring
+          - Connect unused components so every signal reaches the backend
+          - Keep the gateway answering while one destination is unreachable
+        resources:
+          - name: "Collector configuration"
+            url: https://opentelemetry.io/docs/collector/configuration/
+          - name: "Collector troubleshooting"
+            url: https://opentelemetry.io/docs/collector/troubleshooting/
+          - name: "Collector resiliency"
+            url: https://opentelemetry.io/docs/collector/resiliency/
+      - type: quiz
+        title: "Section 040 Knowledge Check"
+        path: sections/section-040/quiz.yaml
+        pass_score: 70
+
+  - id: module-050
+    title: "Transforming Data"
+    description: >
+      Makes the reader able to change telemetry inside the OpenTelemetry
+      Collector before it is exported: attributes, resource, filter and
+      transform processors, OTTL statements, processor order, redaction of
+      sensitive values and the effect of attribute changes on metric
+      identity and cardinality.
+
+    content:
+      - type: reading
+        title: Section Overview
+        path: sections/section-050/README.md
+
+      - type: reading
+        title: "Attributes, Resources And Filtering"
+        path: sections/section-050/module-01/course.md
+      - type: reading
+        title: "Changing Attributes With The Attributes And Resource Processors"
+        path: sections/section-050/module-01/course-01-changing-attributes-with-the-attributes-and-resource-processors.md
+      - type: reading
+        title: "Dropping Data With The Filter Processor"
+        path: sections/section-050/module-01/course-02-dropping-data-with-the-filter-processor.md
+      - type: reading
+        title: "Processor Order And The Level Of An Attribute"
+        path: sections/section-050/module-01/course-03-processor-order-and-the-level-of-an-attribute.md
+      - type: reading
+        title: Question
+        path: sections/section-050/module-01/labs/lab-01/question.md
+      - type: lab
+        title: "Clean Up Telemetry Before Export Lab"
+        path: sections/section-050/module-01/labs/lab-01
+        difficulty: intermediate
+        estimated_duration: 25m
+        topic: collector-processors
+        task_kind: configure
+        tags: [opentelemetry-collector, attributes-processor, resource-processor, filter-processor, ottl, processor-order]
+        learning_goals:
+          - Set and remove resource attributes with the resource processor
+          - Remove and hash span attributes with the attributes processor
+          - Drop health check spans and low severity logs with the filter processor
+        resources:
+          - name: "Attributes processor"
+            url: https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/processor/attributesprocessor
+          - name: "Resource processor"
+            url: https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/processor/resourceprocessor
+          - name: "Filter processor"
+            url: https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/processor/filterprocessor
+      - type: reading
+        title: Summary
+        path: sections/section-050/module-01/course-04-summary.md
+
+      - type: reading
+        title: "The Transform Processor And Data Safety"
+        path: sections/section-050/module-02/course.md
+      - type: reading
+        title: "Statements And Contexts In The Transform Processor"
+        path: sections/section-050/module-02/course-01-statements-and-contexts-in-the-transform-processor.md
+      - type: reading
+        title: "Redacting Sensitive Attributes"
+        path: sections/section-050/module-02/course-02-redacting-sensitive-attributes.md
+      - type: reading
+        title: "Metric Identity, Pipeline Position And Verification"
+        path: sections/section-050/module-02/course-03-metric-identity-pipeline-position-and-verification.md
+      - type: reading
+        title: Question
+        path: sections/section-050/module-02/labs/lab-01/question.md
+      - type: lab
+        title: "Redact Sensitive Data With The Transform Processor Lab"
+        path: sections/section-050/module-02/labs/lab-01
+        difficulty: intermediate
+        estimated_duration: 25m
+        topic: collector-processors
+        task_kind: configure
+        tags: [opentelemetry-collector, transform-processor, ottl, redaction, replace-pattern, error-mode, metric-identity]
+        learning_goals:
+          - Mask a token inside a URL and a card number inside a log body with replace_pattern
+          - Delete sensitive span attributes and a data point attribute with guarded statements
+          - Verify the result with the debug exporter
+        resources:
+          - name: "Transform processor"
+            url: https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/processor/transformprocessor
+          - name: "OTTL language reference"
+            url: https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/pkg/ottl
+          - name: "OTTL functions"
+            url: https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/pkg/ottl/ottlfuncs/README.md
+      - type: reading
+        title: Summary
+        path: sections/section-050/module-02/course-04-summary.md
+
+      - type: reading
+        title: Question
+        path: sections/section-050/capstone/labs/lab-01/question.md
+      - type: lab
+        title: "Starfleet Gateway Data Policy Capstone"
+        path: sections/section-050/capstone/labs/lab-01
+        difficulty: advanced
+        estimated_duration: 40m
+        topic: collector-processors
+        task_kind: configure
+        tags: [opentelemetry-collector, attributes-processor, resource-processor, transform-processor, filter-processor, redaction, processor-order]
+        learning_goals:
+          - Apply one data policy across traces, metrics and logs with four processors
+          - Order the processors so that the filter sees the normalised route
+          - Prove the policy with test telemetry and the debug exporter
+        resources:
+          - name: "Collector processors"
+            url: https://opentelemetry.io/docs/collector/components/processor/
+          - name: "Collector configuration"
+            url: https://opentelemetry.io/docs/collector/configuration/
+          - name: "Transforming telemetry"
+            url: https://opentelemetry.io/docs/collector/transforming-telemetry/
+      - type: quiz
+        title: "Knowledge Check: Transforming Data"
+        path: sections/section-050/quiz.yaml
+        pass_score: 70
+  - id: module-final
+    title: "Final Knowledge Check"
+    description: Questions across all five sections.
+    content:
+    - type: quiz
+      title: "Final Knowledge Check: The OpenTelemetry Collector"
+      path: sections/final-domain-quiz.yaml
+      pass_score: 70

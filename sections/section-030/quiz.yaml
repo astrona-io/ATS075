@@ -1,0 +1,233 @@
+# Knowledge check for section 030. Listed in astrona.yaml as a `type: quiz` entry after the capstone lab.
+schema_version: 1
+kind: question_bank
+id: ats075-030
+course_id: ATS075
+exam_code: OTCA
+status: draft
+provenance: Original practice material written for this course; not official exam questions.
+scope:
+  type: section
+  id: section-030
+  title: Scaling
+questions:
+- id: ats075-030-q01
+  type: single_choice
+  difficulty: beginner
+  learning_objective: "Tell a destination bottleneck from a source bottleneck"
+  source_readings:
+  - sections/section-030/module-01/course-01-reading-the-collectors-own-metrics.md
+  prompt: "The gateway queue size stays near its capacity, `otelcol_exporter_send_failed_spans` grows, and CPU use is low. Where is the bottleneck?"
+  options:
+  - id: a
+    text: "The receiver, because it accepts too many spans."
+    explanation: "This does not match the mechanism described in the reading."
+  - id: b
+    text: "The destination, because the exporter cannot send and the queue fills."
+    explanation: "Correct. A full queue with failed sends and low CPU shows that the Collector has capacity and the exporter cannot deliver."
+  - id: c
+    text: "The batch processor, because it holds spans too long."
+    explanation: "This does not match the mechanism described in the reading."
+  - id: d
+    text: "The kernel, because it throttles the container."
+    explanation: "This does not match the mechanism described in the reading."
+  correct_option: b
+  explanation: "A full queue with failed sends and low CPU shows that the Collector has capacity and the exporter cannot deliver."
+- id: ats075-030-q02
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: "Place the memory limiter and set its limits"
+  source_readings:
+  - sections/section-030/module-01/course-02-queues-retries-and-memory-limits.md
+  prompt: "A gateway has a container memory limit of 256Mi. Which setup protects it best?"
+  options:
+  - id: a
+    text: "`memory_limiter` last in the pipeline with `limit_mib: 300`."
+    explanation: "This does not match the mechanism described in the reading."
+  - id: b
+    text: "`batch` first, then `memory_limiter` with `limit_mib: 256`."
+    explanation: "This does not match the mechanism described in the reading."
+  - id: c
+    text: "No `memory_limiter`, because the container limit already protects the process."
+    explanation: "This does not match the mechanism described in the reading."
+  - id: d
+    text: "`memory_limiter` first in the pipeline with `limit_mib` below 256."
+    explanation: "Correct. The limiter must be first so that it refuses data before other processors use memory, and its hard limit must be below the container limit, because the kernel kills the container above it."
+  correct_option: d
+  explanation: "The limiter must be first so that it refuses data before other processors use memory, and its hard limit must be below the container limit, because the kernel kills the container above it."
+- id: ats075-030-q03
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: "Explain the soft limit of memory_limiter"
+  source_readings:
+  - sections/section-030/module-01/course-02-queues-retries-and-memory-limits.md
+  prompt: "A `memory_limiter` has `limit_mib: 200` and `spike_limit_mib: 40`. At what memory use does it start to refuse data?"
+  options:
+  - id: a
+    text: "At 160 MiB, the hard limit minus the spike limit."
+    explanation: "Correct. The soft limit is the hard limit minus the spike limit, so refusing starts at 160 MiB. Above the hard limit the processor also forces garbage collection."
+  - id: b
+    text: "At 200 MiB, the hard limit."
+    explanation: "This does not match the mechanism described in the reading."
+  - id: c
+    text: "At 240 MiB, the hard limit plus the spike limit."
+    explanation: "This does not match the mechanism described in the reading."
+  - id: d
+    text: "At 40 MiB, the spike limit."
+    explanation: "This does not match the mechanism described in the reading."
+  correct_option: a
+  explanation: "The soft limit is the hard limit minus the spike limit, so refusing starts at 160 MiB. Above the hard limit the processor also forces garbage collection."
+- id: ats075-030-q04
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: "Describe what the sending queue and retry do"
+  source_readings:
+  - sections/section-030/module-01/course-02-queues-retries-and-memory-limits.md
+  prompt: "The destination is down for ten minutes. The exporter has `retry_on_failure` with `max_elapsed_time: 120s`. What happens to a request that was queued at the start of the outage?"
+  options:
+  - id: a
+    text: "It is kept until the destination returns, whatever the time."
+    explanation: "This does not match the mechanism described in the reading."
+  - id: b
+    text: "It is sent to a second destination automatically."
+    explanation: "This does not match the mechanism described in the reading."
+  - id: c
+    text: "It is retried with a growing delay and dropped after 120 seconds in total."
+    explanation: "Correct. Retries repeat with a growing delay until the elapsed time passes the limit. After that the data is dropped and counted as failed."
+  - id: d
+    text: "It is written to disk and sent after a restart."
+    explanation: "This does not match the mechanism described in the reading."
+  correct_option: c
+  explanation: "Retries repeat with a growing delay until the elapsed time passes the limit. After that the data is dropped and counted as failed."
+- id: ats075-030-q05
+  type: single_choice
+  difficulty: beginner
+  learning_objective: "Compare CPU and memory limits"
+  source_readings:
+  - sections/section-030/module-01/course-03-vertical-and-horizontal-scaling.md
+  prompt: "A Collector container goes over its CPU limit and, in another case, over its memory limit. What happens in each case?"
+  options:
+  - id: a
+    text: "CPU use is throttled and memory use gets the container killed."
+    explanation: "Correct. CPU above the limit slows the process and memory above the limit makes the kernel kill the container."
+  - id: b
+    text: "Both cause the container to be killed."
+    explanation: "This does not match the mechanism described in the reading."
+  - id: c
+    text: "CPU use gets the container killed and memory use is throttled."
+    explanation: "This does not match the mechanism described in the reading."
+  - id: d
+    text: "Both are throttled and the Collector slows down."
+    explanation: "This does not match the mechanism described in the reading."
+  correct_option: a
+  explanation: "CPU above the limit slows the process and memory above the limit makes the kernel kill the container."
+- id: ats075-030-q06
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: "Decide when horizontal scaling helps"
+  source_readings:
+  - sections/section-030/module-01/course-03-vertical-and-horizontal-scaling.md
+  prompt: "Which problem does adding gateway replicas NOT solve?"
+  options:
+  - id: a
+    text: "High CPU use on the gateway."
+    explanation: "This does not match the mechanism described in the reading."
+  - id: b
+    text: "A destination that is slow for every replica."
+    explanation: "Correct. All replicas export to the same destination, so a slow destination gets more load and the queues of all replicas fill."
+  - id: c
+    text: "A single replica that holds too many queued requests."
+    explanation: "This does not match the mechanism described in the reading."
+  - id: d
+    text: "Too many incoming connections for one pod."
+    explanation: "This does not match the mechanism described in the reading."
+  correct_option: b
+  explanation: "All replicas export to the same destination, so a slow destination gets more load and the queues of all replicas fill."
+- id: ats075-030-q07
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: "Explain how a Service balances OTLP traffic"
+  source_readings:
+  - sections/section-030/module-02/course-01-stateless-replicas-behind-a-service.md
+  prompt: "A sender keeps one gRPC connection open to a ClusterIP Service with three gateway pods. What does the traffic look like?"
+  options:
+  - id: a
+    text: "It is spread evenly over the three pods by request."
+    explanation: "This does not match the mechanism described in the reading."
+  - id: b
+    text: "It goes to the pod with the lowest load."
+    explanation: "This does not match the mechanism described in the reading."
+  - id: c
+    text: "It alternates between the pods every few seconds."
+    explanation: "This does not match the mechanism described in the reading."
+  - id: d
+    text: "It goes to one pod, because the Service chooses once per connection."
+    explanation: "Correct. kube-proxy chooses a pod when the connection starts, and a long-lived connection stays on that pod."
+  correct_option: d
+  explanation: "kube-proxy chooses a pod when the connection starts, and a long-lived connection stays on that pod."
+- id: ats075-030-q08
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: "Explain why tail sampling needs trace-aware routing"
+  source_readings:
+  - sections/section-030/module-02/course-02-routing-by-trace-id-for-tail-sampling.md
+  prompt: "Two tail sampling pods sit behind a plain Service. One trace has an ERROR span, and its spans arrive at both pods. What is the result?"
+  options:
+  - id: a
+    text: "Both pods keep their part, because the policy matches on one pod."
+    explanation: "This does not match the mechanism described in the reading."
+  - id: b
+    text: "The trace is kept completely, because the pods share decisions."
+    explanation: "This does not match the mechanism described in the reading."
+  - id: c
+    text: "Only the pod with the ERROR span keeps its part, and the other part is dropped."
+    explanation: "Correct. Each pod decides on the spans it has. The pod with the ERROR span keeps only its part and the other pod drops its part, so the trace is incomplete."
+  - id: d
+    text: "The Service reroutes the spans to one pod."
+    explanation: "This does not match the mechanism described in the reading."
+  correct_option: c
+  explanation: "Each pod decides on the spans it has. The pod with the ERROR span keeps only its part and the other pod drops its part, so the trace is incomplete."
+- id: ats075-030-q09
+  type: single_choice
+  difficulty: advanced
+  learning_objective: "Configure the load balancing exporter"
+  source_readings:
+  - sections/section-030/module-02/course-02-routing-by-trace-id-for-tail-sampling.md
+  prompt: "How does the `load_balancing` exporter find the sampler pods in the playground, and why a headless Service?"
+  options:
+  - id: a
+    text: "It reads a fixed list, because `dns` is not supported."
+    explanation: "This does not match the mechanism described in the reading."
+  - id: b
+    text: "It uses the `dns` resolver on a headless Service name, which returns the pod addresses."
+    explanation: "Correct. The resolver needs individual pod addresses. A headless Service returns them in DNS, while a ClusterIP returns a single address."
+  - id: c
+    text: "It uses the ClusterIP of the Service, which returns the pod addresses."
+    explanation: "This does not match the mechanism described in the reading."
+  - id: d
+    text: "It asks the sampler pods to announce themselves."
+    explanation: "This does not match the mechanism described in the reading."
+  correct_option: b
+  explanation: "The resolver needs individual pod addresses. A headless Service returns them in DNS, while a ClusterIP returns a single address."
+- id: ats075-030-q10
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: "Shard a pulling receiver"
+  source_readings:
+  - sections/section-030/module-02/course-03-sharding-scrapes-and-avoiding-duplicates.md
+  prompt: "A StatefulSet of two Collectors runs the same scrape job with `hashmod` (modulus 2) and `keep` with `${env:SHARD}`. What does each pod scrape?"
+  options:
+  - id: a
+    text: "Every target, and the backend removes duplicates."
+    explanation: "This does not match the mechanism described in the reading."
+  - id: b
+    text: "The targets whose hash is zero, on both pods."
+    explanation: "This does not match the mechanism described in the reading."
+  - id: c
+    text: "Only the targets that were added last."
+    explanation: "This does not match the mechanism described in the reading."
+  - id: d
+    text: "Only the targets whose hash equals the pod index."
+    explanation: "Correct. Each pod keeps the targets with a hash equal to its own index, so each target has exactly one owner."
+  correct_option: d
+  explanation: "Each pod keeps the targets with a hash equal to its own index, so each target has exactly one owner."

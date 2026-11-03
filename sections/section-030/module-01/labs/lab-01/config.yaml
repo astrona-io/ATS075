@@ -1,0 +1,66 @@
+# yaml-language-server: $schema=https://cli.astrona.io/schema/lab-config.schema.json
+#
+# Capacity Signals And Protecting The Collector (LAB). Graded against the live cluster.
+apiVersion: astrona.io/v1
+metadata:
+  name: ats-075-lab-030-01
+  docs:
+    prerequisites: prerequisites.md
+    question: question.md
+    solution: solution.md
+
+runtime:
+  type: kind
+  kind:
+    image: kindest/node:v1.35.8
+    preloadImages:
+      - otel/opentelemetry-collector-contrib:0.162.0
+      - curlimages/curl:8.22.0
+
+# Starting state: a healthy backend Collector and a faulty gateway Collector
+# (no exposed self-telemetry, wrong exporter port, a queue of 100, no
+# memory_limiter, no batch processor, no container memory limit).
+bootstrap:
+  init:
+    - name: seed-cluster
+      description: Apply the backend, the faulty gateway and the curl client
+      type: file
+      source: bootstrap/01-seed-cluster.sh
+
+# Applied only by `astrona test`: the reference solution.
+testing:
+  init:
+    - name: apply-solution
+      description: Apply the reference solution
+      type: file
+      source: solution/apply.sh
+    - name: wait-for-settled
+      description: Wait until the gateway answers on its metrics port
+      type: file
+      source: testing/wait-for-settled.sh
+
+validation:
+  scripts:
+    - name: self-metrics
+      description: The gateway exposes its own metrics on port 8888 through the Service
+      type: file
+      source: validation/validate-self-metrics.sh
+      hint: The Collector listens on 127.0.0.1:8888 by default. Add a service.telemetry.metrics.readers entry with a pull prometheus exporter on host 0.0.0.0 and port 8888, then restart the gateway.
+    - name: delivery
+      description: A span sent to the gateway reaches the backend
+      type: file
+      source: validation/validate-delivery.sh
+      hint: Read the gateway log with kubectl logs. The exporter endpoint must name the backend Service and its OTLP gRPC port, which is 4317.
+    - name: protection
+      description: memory_limiter is the first processor, batch follows, and the container has a memory limit above limit_mib
+      type: file
+      source: validation/validate-protection.sh
+      hint: Add memory_limiter and batch under processors, list them as processors [memory_limiter, batch] in the traces pipeline, and set resources.limits.memory on the container so that limit_mib stays below it.
+    - name: queue-capacity
+      description: The running exporter queue has a capacity of at least 5000
+      type: file
+      source: validation/validate-queue-capacity.sh
+      hint: Set sending_queue.queue_size to 5000 on the otlp exporter, then restart the gateway. Read otelcol_exporter_queue_capacity on port 8888 to confirm.
+
+teardown:
+  keepCluster: false

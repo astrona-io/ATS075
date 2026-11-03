@@ -1,0 +1,265 @@
+# Starting state for the gateway playground and lab: a backend Collector that
+# requires HTTP basic authentication (it stands in for the observability
+# platform), a client pod (shuttle) and an agent DaemonSet that exports straight
+# to the backend with the password written in its own configuration. There is
+# no gateway yet.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: starfleet
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: shuttle
+  namespace: starfleet
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shuttle
+  namespace: starfleet
+  labels:
+    app: shuttle
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: shuttle
+  template:
+    metadata:
+      labels:
+        app: shuttle
+    spec:
+      serviceAccountName: shuttle
+      automountServiceAccountToken: false
+      containers:
+        - name: shuttle
+          image: curlimages/curl:8.22.0
+          command: ["sleep", "infinity"]
+---
+# The backend accepts only the user "gateway". The Secret holds the htpasswd
+# line (user name and SHA-1 hash of the password). The password itself is in
+# the Secret backend-credentials, which belongs to the team that runs the gateway.
+apiVersion: v1
+kind: Secret
+metadata:
+  name: backend-htpasswd
+  namespace: starfleet
+type: Opaque
+stringData:
+  htpasswd: |
+    gateway:{SHA}nFyNeo6jZ7K0hE/OAILj0LU3soM=
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: backend-credentials
+  namespace: starfleet
+type: Opaque
+stringData:
+  username: gateway
+  password: kestrel-orbit-7
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: otel-backend-config
+  namespace: starfleet
+data:
+  config.yaml: |
+    extensions:
+      health_check:
+        endpoint: 0.0.0.0:13133
+      basicauth/server:
+        htpasswd:
+          file: /auth/htpasswd
+
+    receivers:
+      otlp:
+        protocols:
+          http:
+            endpoint: 0.0.0.0:4318
+            auth:
+              authenticator: basicauth/server
+
+    exporters:
+      debug:
+        verbosity: detailed
+
+    service:
+      extensions: [health_check, basicauth/server]
+      pipelines:
+        traces:
+          receivers: [otlp]
+          exporters: [debug]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: otel-backend
+  namespace: starfleet
+  labels:
+    app: otel-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: otel-backend
+  template:
+    metadata:
+      labels:
+        app: otel-backend
+    spec:
+      containers:
+        - name: collector
+          image: otel/opentelemetry-collector-contrib:0.162.0
+          args: ["--config=/conf/config.yaml"]
+          ports:
+            - name: otlp-http
+              containerPort: 4318
+            - name: health
+              containerPort: 13133
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 13133
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              memory: 256Mi
+          volumeMounts:
+            - name: conf
+              mountPath: /conf
+            - name: auth
+              mountPath: /auth
+              readOnly: true
+      volumes:
+        - name: conf
+          configMap:
+            name: otel-backend-config
+        - name: auth
+          secret:
+            secretName: backend-htpasswd
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: otel-backend
+  namespace: starfleet
+spec:
+  selector:
+    app: otel-backend
+  ports:
+    - name: otlp-http
+      port: 4318
+      targetPort: otlp-http
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: otel-agent
+  namespace: starfleet
+---
+# The fault: the agent holds the backend password in its own configuration.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: otel-agent-config
+  namespace: starfleet
+data:
+  config.yaml: |
+    extensions:
+      health_check:
+        endpoint: 0.0.0.0:13133
+      basicauth/backend:
+        client_auth:
+          username: gateway
+          password: kestrel-orbit-7
+
+    receivers:
+      otlp:
+        protocols:
+          http:
+            endpoint: 0.0.0.0:4318
+
+    processors:
+      memory_limiter:
+        check_interval: 1s
+        limit_mib: 150
+        spike_limit_mib: 30
+      batch:
+
+    exporters:
+      otlphttp/backend:
+        endpoint: http://otel-backend.starfleet.svc:4318
+        auth:
+          authenticator: basicauth/backend
+
+    service:
+      extensions: [health_check, basicauth/backend]
+      pipelines:
+        traces:
+          receivers: [otlp]
+          processors: [memory_limiter, batch]
+          exporters: [otlphttp/backend]
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: otel-agent
+  namespace: starfleet
+  labels:
+    app: otel-agent
+spec:
+  selector:
+    matchLabels:
+      app: otel-agent
+  template:
+    metadata:
+      labels:
+        app: otel-agent
+    spec:
+      serviceAccountName: otel-agent
+      containers:
+        - name: collector
+          image: otel/opentelemetry-collector-contrib:0.162.0
+          args: ["--config=/conf/config.yaml"]
+          ports:
+            - name: otlp-http
+              containerPort: 4318
+            - name: health
+              containerPort: 13133
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 13133
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              memory: 256Mi
+          volumeMounts:
+            - name: conf
+              mountPath: /conf
+      volumes:
+        - name: conf
+          configMap:
+            name: otel-agent-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: otel-agent
+  namespace: starfleet
+spec:
+  selector:
+    app: otel-agent
+  internalTrafficPolicy: Local
+  ports:
+    - name: otlp-http
+      port: 4318
+      targetPort: otlp-http

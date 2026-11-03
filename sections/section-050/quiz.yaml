@@ -1,0 +1,233 @@
+# Knowledge check for section 050. Listed in astrona.yaml as a `type: quiz` entry after the capstone lab.
+schema_version: 1
+kind: question_bank
+id: ats075-050
+course_id: ATS075
+exam_code: OTCA
+status: draft
+provenance: Original practice material written for this course; not official exam questions.
+scope:
+  type: section
+  id: section-050
+  title: Transforming Data
+questions:
+- id: ats075-050-q01
+  type: single_choice
+  difficulty: beginner
+  learning_objective: Name the attributes processor actions
+  source_readings:
+  - sections/section-050/module-01/course-01-changing-attributes-with-the-attributes-and-resource-processors.md
+  prompt: "An attributes processor has an `insert` action for the key `region` with the value `eu`. A span already has `region` with the value `us`. What is the value after the processor?"
+  options:
+  - id: a
+    text: "`eu`, because `insert` always overwrites."
+    explanation: "`upsert` overwrites an existing key. `insert` does not."
+  - id: b
+    text: "`us`, because `insert` adds the key only when it is missing."
+    explanation: "Correct. `insert` skips a key that exists. `update` changes only an existing key, and `upsert` does both."
+  - id: c
+    text: "The span is dropped, because the key exists."
+    explanation: "The attributes processor does not drop data."
+  - id: d
+    text: "Both values are kept in a list."
+    explanation: "An attribute has one value. It is not turned into a list."
+  correct_option: b
+  explanation: "`insert` adds only when the key is missing, `update` changes only when it exists, and `upsert` does both."
+- id: ats075-050-q02
+  type: single_choice
+  difficulty: beginner
+  learning_objective: Explain why a true filter condition drops data
+  source_readings:
+  - sections/section-050/module-01/course-02-dropping-data-with-the-filter-processor.md
+  prompt: "A filter processor has the `trace_conditions` entry `span.attributes[\"http.target\"] == \"/healthz\"`. What happens to a span for which the condition is true?"
+  options:
+  - id: a
+    text: "The span is dropped."
+    explanation: "Correct. In the filter processor a condition that is true selects the item for removal."
+  - id: b
+    text: "The span is kept and all others are dropped."
+    explanation: "The filter processor drops the matches. It does not keep only the matches."
+  - id: c
+    text: "The span is marked and sent to a second exporter."
+    explanation: "The filter processor does not route data."
+  - id: d
+    text: "The span is kept and its name is changed."
+    explanation: "The filter processor does not change names."
+  correct_option: a
+  explanation: "A condition in the filter processor describes what to drop, so a true result removes the item."
+- id: ats075-050-q03
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Choose the right error_mode
+  source_readings:
+  - sections/section-050/module-01/course-02-dropping-data-with-the-filter-processor.md
+  prompt: "A team wants a failing condition to be skipped, logged and never to stop the data. Which `error_mode` fits?"
+  options:
+  - id: a
+    text: "`drop`"
+    explanation: "`drop` is not a value of `error_mode`."
+  - id: b
+    text: "`propagate`"
+    explanation: "`propagate` returns the error, and the payload is dropped."
+  - id: c
+    text: "`ignore`"
+    explanation: "Correct. `ignore` logs the error and continues. `silent` does the same without a log line."
+  - id: d
+    text: "`retry`"
+    explanation: "`retry` is not a value of `error_mode`."
+  correct_option: c
+  explanation: "`ignore` logs the error and continues with the data. `propagate` fails the payload."
+- id: ats075-050-q04
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Explain processor order
+  source_readings:
+  - sections/section-050/module-01/course-03-processor-order-and-the-level-of-an-attribute.md
+  prompt: "A pipeline lists `filter/noise` and then `transform/redact`. The filter matches `http.target` equal to `/healthz`. The transform removes the query string from `http.target`. A span arrives with `/healthz?probe=1`. What happens?"
+  options:
+  - id: a
+    text: "The Collector rejects the pipeline."
+    explanation: "A pipeline with this order is valid."
+  - id: b
+    text: "The filter matches, and the span is dropped."
+    explanation: "The condition compares the full value, which still has the query string."
+  - id: c
+    text: "The transform runs first, because it was defined first."
+    explanation: "The order of the `processors` list in the pipeline decides, not the order of definition."
+  - id: d
+    text: "The filter does not match, and the span is kept."
+    explanation: "Correct. Processors run in the list order. The filter sees `/healthz?probe=1`, which is not equal to `/healthz`."
+  correct_option: d
+  explanation: "The order of the list in the pipeline decides what each processor sees. Put the transform first to normalise the value before the filter."
+- id: ats075-050-q05
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Tell resource attributes from span attributes
+  source_readings:
+  - sections/section-050/module-01/course-03-processor-order-and-the-level-of-an-attribute.md
+  prompt: "Which processor change removes the resource attribute `host.name` and leaves span attributes alone?"
+  options:
+  - id: a
+    text: "A resource processor with a `delete` action for `host.name`."
+    explanation: "Correct. The resource processor works on the resource level."
+  - id: b
+    text: "An attributes processor with a `delete` action for `host.name`."
+    explanation: "The attributes processor works on span, log record and data point attributes, not on resource attributes."
+  - id: c
+    text: "A filter processor with `host.name` as a condition."
+    explanation: "The filter processor drops data and does not remove one attribute."
+  - id: d
+    text: "A batch processor."
+    explanation: "The batch processor groups data and does not change attributes."
+  correct_option: a
+  explanation: "The resource processor changes the attributes of the resource. The attributes processor changes the attributes of the item."
+- id: ats075-050-q06
+  type: single_choice
+  difficulty: beginner
+  learning_objective: Describe an OTTL statement
+  source_readings:
+  - sections/section-050/module-02/course-01-statements-and-contexts-in-the-transform-processor.md
+  prompt: "In the transform processor statement `delete_key(span.attributes, \"user.password\")`, what does `span` select?"
+  options:
+  - id: a
+    text: "The name of the span to delete."
+    explanation: "The path names a level, not a span name."
+  - id: b
+    text: "The context, so the statement runs on each span."
+    explanation: "Correct. The first word of a path names the context."
+  - id: c
+    text: "The service name."
+    explanation: "The service name is a resource attribute."
+  - id: d
+    text: "The exporter."
+    explanation: "An exporter is not part of a statement."
+  correct_option: b
+  explanation: "The first word of a path is the context. `span.attributes` is the map of attributes of each span."
+- id: ats075-050-q07
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Mask a part of a value
+  source_readings:
+  - sections/section-050/module-02/course-02-redacting-sensitive-attributes.md
+  prompt: "Which statement changes `token=abc123` in the span attribute `url.full` into `token=REDACTED` and leaves the rest of the URL?"
+  options:
+  - id: a
+    text: "`limit(span.attributes, 0)`"
+    explanation: "`limit` keeps a number of attributes and does not mask a part of a value."
+  - id: b
+    text: "`delete_key(span.attributes, \"url.full\")`"
+    explanation: "`delete_key` removes the whole attribute, including the rest of the URL."
+  - id: c
+    text: "`set(span.attributes[\"url.full\"], \"token=REDACTED\")`"
+    explanation: "`set` replaces the whole value and loses the rest of the URL."
+  - id: d
+    text: "`replace_pattern(span.attributes[\"url.full\"], \"token=[^&]*\", \"token=REDACTED\")`"
+    explanation: "Correct. `replace_pattern` replaces only the part that matches the regular expression."
+  correct_option: d
+  explanation: "`replace_pattern` changes the matched part of a string. `delete_key` and `set` change the whole attribute."
+- id: ats075-050-q08
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Guard a statement
+  source_readings:
+  - sections/section-050/module-02/course-02-redacting-sensitive-attributes.md
+  prompt: "Why do redaction statements use `where span.attributes[\"url.full\"] != nil`?"
+  options:
+  - id: a
+    text: "To copy the attribute to a new key."
+    explanation: "A `where` clause does not copy anything."
+  - id: b
+    text: "To make the statement run faster on every span."
+    explanation: "Speed is not the reason."
+  - id: c
+    text: "To avoid an error on spans that do not have the attribute."
+    explanation: "Correct. A statement on a missing attribute fails, and `error_mode` then decides whether the change is skipped or the payload is dropped."
+  - id: d
+    text: "To drop the spans that lack the attribute."
+    explanation: "A `where` clause limits where a statement runs. It does not drop spans."
+  correct_option: c
+  explanation: "A `where` clause limits a statement to items that have the attribute, so a missing attribute does not cause an error."
+- id: ats075-050-q09
+  type: single_choice
+  difficulty: advanced
+  learning_objective: Explain metric identity
+  source_readings:
+  - sections/section-050/module-02/course-03-metric-identity-pipeline-position-and-verification.md
+  prompt: "Two data points of one counter have `route=/orders` and differ only by `user.id`, with the values 5 and 7. A transform processor deletes `user.id` from both. What is the result?"
+  options:
+  - id: a
+    text: "Two data points with the same attributes and the values 5 and 7. They are not summed."
+    explanation: "Correct. The processor changes attributes and does not aggregate. The points now share one identity."
+  - id: b
+    text: "One data point with the value 12."
+    explanation: "Summing needs a separate aggregation step. The transform processor does not do it."
+  - id: c
+    text: "One data point with the value 5, because the first one wins."
+    explanation: "The processor does not choose between points."
+  - id: d
+    text: "Both data points are dropped."
+    explanation: "Deleting an attribute does not drop a data point."
+  correct_option: a
+  explanation: "Deleting a metric attribute can make several points share one identity. The transform processor does not merge or sum them."
+- id: ats075-050-q10
+  type: single_choice
+  difficulty: advanced
+  learning_objective: Find a leak through pipeline layout
+  source_readings:
+  - sections/section-050/module-02/course-03-metric-identity-pipeline-position-and-verification.md
+  prompt: "A receiver feeds the pipeline `traces`, which has a transform processor that deletes a secret, and the pipeline `traces/raw`, which has no processor and a debug exporter. Where does the secret appear?"
+  options:
+  - id: a
+    text: "Nowhere, because the transform processor runs for the receiver."
+    explanation: "A processor belongs to the pipelines that list it, not to the receiver."
+  - id: b
+    text: "In the output of the debug exporter of `traces/raw`."
+    explanation: "Correct. Each pipeline gets its own copy of the data, and a processor protects only the pipelines where it is listed."
+  - id: c
+    text: "Only in the `traces` pipeline."
+    explanation: "The processed pipeline has the secret removed."
+  - id: d
+    text: "Only if the exporter has `verbosity: basic`."
+    explanation: "`basic` prints less, but the pipeline without the processor still carries the secret."
+  correct_option: b
+  explanation: "A processor protects only the pipelines that list it. A second pipeline without it carries the original data to its exporter."

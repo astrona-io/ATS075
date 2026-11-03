@@ -1,0 +1,31 @@
+# yaml-language-server: $schema=https://cli.astrona.io/schema/lab-config.schema.json
+#
+# Attributes, Resources And Filtering (PLAYGROUND). UNTESTED: built with static checks only.
+# A clean sandbox: the Collector runs with a pass-through configuration and a curl
+# pod named sender is ready to post test telemetry. No task, no grading, no `astrona submit`.
+apiVersion: astrona.io/v1
+metadata:
+  name: ats-075-playground-050-01
+  docs:
+    guide: docs/overview.md
+
+runtime:
+  type: kind
+  kind:
+    image: kindest/node:v1.35.8
+    preloadImages:
+      - otel/opentelemetry-collector-contrib:0.162.0
+      - curlimages/curl:8.22.0
+
+bootstrap:
+  manifests:
+    - name: collector
+      description: "Namespace otel, the Collector 0.162.0 with a pass-through configuration, and the curl pod sender"
+      type: file
+      source: manifests/collector.yaml
+  waitFor:
+    - resource: deploy/collector
+      namespace: otel
+
+teardown:
+  keepCluster: false

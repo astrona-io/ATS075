@@ -1,0 +1,36 @@
+# yaml-language-server: $schema=https://cli.astrona.io/schema/lab-config.schema.json
+#
+# Configuration Sources, Environment Values And Extensions (PLAYGROUND) - playground environment.
+# A clean sandbox: it starts the gateway Collector, a sender pod and an agent
+# Collector, then stays running for free exploration. No task, no grading, no
+# `astrona submit`. Built untested.
+apiVersion: astrona.io/v1
+metadata:
+  name: ats-075-playground-010-02
+  docs:
+    guide: docs/overview.md
+
+runtime:
+  type: kind
+  kind:
+    image: kindest/node:v1.35.8
+    preloadImages:
+      - otel/opentelemetry-collector-contrib:0.162.0
+      - curlimages/curl:8.22.0
+
+# What the learner starts with: an agent Collector with two configuration files, the environment variables GATEWAY_ENDPOINT, DEPLOY_ENV and BACKEND_TOKEN, and no extension.
+bootstrap:
+  manifests:
+    - name: lab-start
+      type: file
+      source: manifests/lab-start.yaml
+  waitFor:
+    - resource: deploy/gateway
+      namespace: outpost
+    - resource: deploy/shuttle
+      namespace: starfleet
+    - resource: deploy/otelcol
+      namespace: starfleet
+
+teardown:
+  keepCluster: false

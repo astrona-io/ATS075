@@ -1,0 +1,66 @@
+# yaml-language-server: $schema=https://cli.astrona.io/schema/lab-config.schema.json
+#
+# Connectors, Backpressure And Failure Behavior (LAB). Graded against the live cluster.
+apiVersion: astrona.io/v1
+metadata:
+  name: ats-075-lab-040-02
+  docs:
+    prerequisites: prerequisites.md
+    question: question.md
+    solution: solution.md
+
+runtime:
+  type: kind
+  kind:
+    image: kindest/node:v1.35.8
+    preloadImages:
+      - otel/opentelemetry-collector-contrib:0.162.0
+      - curlimages/curl:8.22.0
+
+# Starting state: the gateway exports traces to otlphttp/archive (an address that
+# does not exist, with the sending queue switched off), otlphttp/backend and debug.
+# No connector is defined.
+bootstrap:
+  init:
+    - name: seed-cluster
+      description: Create the gateway and backend Collectors and the curl client
+      type: file
+      source: bootstrap/01-seed-cluster.sh
+
+# Applied only by `astrona test`: the reference solution.
+testing:
+  init:
+    - name: apply-solution
+      description: Apply the reference solution
+      type: file
+      source: solution/apply.sh
+    - name: wait-for-settled
+      description: Wait until the restarted gateway is healthy
+      type: file
+      source: testing/wait-for-settled.sh
+
+validation:
+  scripts:
+    - name: fast-answer
+      description: The gateway answers a trace with 200 in under 10 seconds and the backend receives it
+      type: file
+      source: validation/validate-trace-fanout.sh
+      hint: With the sending queue switched off, the failing exporter retries inside the request, so the sender waits. Enable the sending queue of otlphttp/archive. Do not remove the exporter.
+    - name: archive-queue
+      description: otlphttp/archive still runs and has a sending queue
+      type: file
+      source: validation/validate-archive-queue.sh
+      hint: The gateway metrics on port 8888 list otelcol_exporter_queue_capacity for each exporter that has a queue. Keep otlphttp/archive in the traces pipeline.
+    - name: span-count
+      description: The count connector turns spans into the metric trace.span.count at the backend
+      type: file
+      source: validation/validate-count-metric.sh
+      hint: Define the connector count, list it as an exporter of the traces pipeline, and create a metrics pipeline with count as its only receiver and otlphttp/backend as its exporter.
+    - name: gateway-healthy
+      description: The gateway Deployment is available and its health check answers 200
+      type: file
+      source: validation/validate-gateway-healthy.sh
+      hint: If the new pod crashes, run kubectl -n starfleet logs deploy/gateway. A connector that is used on only one side of a pair is reported at start.
+
+teardown:
+  keepCluster: false

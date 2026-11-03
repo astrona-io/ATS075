@@ -1,0 +1,79 @@
+# yaml-language-server: $schema=https://cli.astrona.io/schema/lab-config.schema.json
+#
+# Configuration Capstone (LAB). Graded against the live cluster. Built untested.
+apiVersion: astrona.io/v1
+metadata:
+  name: ats-075-capstone-010
+  docs:
+    prerequisites: prerequisites.md
+    question: question.md
+    solution: solution.md
+
+runtime:
+  type: kind
+  kind:
+    image: kindest/node:v1.35.8
+    preloadImages:
+      - otel/opentelemetry-collector-contrib:0.162.0
+      - curlimages/curl:8.22.0
+
+# Starting state: an agent Collector with a listener on localhost, one pipeline, a literal token and environment value, a second file that overrides the exporter list and a health_check extension that is not enabled. The faults are left in place on purpose.
+bootstrap:
+  init:
+    - name: seed-cluster
+      description: "Create the gateway, the shuttle sender and the agent with a faulty configuration"
+      type: file
+      source: bootstrap/01-seed-cluster.sh
+
+# Applied only by `astrona test`: the reference solution.
+testing:
+  init:
+    - name: apply-solution
+      description: "Apply the reference solution"
+      type: file
+      source: solution/apply.sh
+    - name: wait-for-settled
+      description: "Wait until only the new agent pod is left"
+      type: file
+      source: testing/wait-for-settled.sh
+
+validation:
+  scripts:
+    - name: agent-ready
+      description: "The agent Deployment is available with the original image"
+      type: file
+      source: validation/validate-agent-ready.sh
+      hint: "Read the pod log with kubectl logs. Keep the health_check extension and the two configuration files."
+    - name: config-validates
+      description: "The merged configuration passes otelcol-contrib validate"
+      type: file
+      source: validation/validate-config-validates.sh
+      hint: "Run the validate command with the two files and read the error. A reference to a component that is not defined is an error."
+    - name: signals-reach-gateway
+      description: "Traces, metrics and logs reach the gateway"
+      type: file
+      source: validation/validate-signals-reach-gateway.sh
+      hint: "Check each pipeline in the merged result. A list in the second file replaces the list in the first file."
+    - name: second-receiver
+      description: "The named receiver otlp/second accepts traces on port 4319"
+      type: file
+      source: validation/validate-second-receiver.sh
+      hint: "Define otlp/second on 0.0.0.0:4319 and add it to the pipelines."
+    - name: environment-attribute
+      description: "deployment.environment comes from DEPLOY_ENV"
+      type: file
+      source: validation/validate-environment-attribute.sh
+      hint: "Use ${env:DEPLOY_ENV} in the value of the resource attribute."
+    - name: secret-from-env
+      description: "The token comes from the Secret through BACKEND_TOKEN"
+      type: file
+      source: validation/validate-secret-from-env.sh
+      hint: "Remove the literal token and write Bearer ${env:BACKEND_TOKEN}."
+    - name: health-check
+      description: "The health_check extension answers on port 13133"
+      type: file
+      source: validation/validate-health-check.sh
+      hint: "List health_check under service extensions."
+
+teardown:
+  keepCluster: false

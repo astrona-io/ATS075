@@ -1,0 +1,65 @@
+# yaml-language-server: $schema=https://cli.astrona.io/schema/lab-config.schema.json
+#
+# Signal Paths, Shared Components And Fan-Out (LAB). Graded against the live cluster.
+apiVersion: astrona.io/v1
+metadata:
+  name: ats-075-lab-040-01
+  docs:
+    prerequisites: prerequisites.md
+    question: question.md
+    solution: solution.md
+
+runtime:
+  type: kind
+  kind:
+    image: kindest/node:v1.35.8
+    preloadImages:
+      - otel/opentelemetry-collector-contrib:0.162.0
+      - curlimages/curl:8.22.0
+
+# Starting state: the gateway Collector has a traces pipeline that exports only
+# to the debug exporter. The backend Collector prints what it receives.
+bootstrap:
+  init:
+    - name: seed-cluster
+      description: Create the gateway and backend Collectors and the curl client
+      type: file
+      source: bootstrap/01-seed-cluster.sh
+
+# Applied only by `astrona test`: the reference solution.
+testing:
+  init:
+    - name: apply-solution
+      description: Apply the reference solution
+      type: file
+      source: solution/apply.sh
+    - name: wait-for-settled
+      description: Wait until the restarted gateway is healthy
+      type: file
+      source: testing/wait-for-settled.sh
+
+validation:
+  scripts:
+    - name: trace-fanout
+      description: Spans reach the gateway debug exporter and the backend
+      type: file
+      source: validation/validate-trace-fanout.sh
+      hint: Add otlphttp/backend to the exporters list of the traces pipeline, keep debug, then restart the gateway with kubectl rollout restart. The Collector reads its file only at start.
+    - name: logs-pipeline
+      description: Log records reach the backend through a logs pipeline that shares the otlp receiver
+      type: file
+      source: validation/validate-logs-pipeline.sh
+      hint: Add a pipeline named logs under service.pipelines with the receiver otlp and the exporter otlphttp/backend. Do not define a second receiver.
+    - name: redaction
+      description: The value of user.email is removed before any exporter sees it
+      type: file
+      source: validation/validate-redaction.sh
+      hint: Put attributes/redact in the processors list of the traces pipeline, before batch. A processor that is defined but not listed in a pipeline does nothing.
+    - name: gateway-healthy
+      description: The gateway Deployment is available and its health check answers 200
+      type: file
+      source: validation/validate-gateway-healthy.sh
+      hint: If the new pod crashes, run kubectl -n starfleet logs deploy/gateway and read the first error line. Typical causes are a name that is not defined or an indentation mistake.
+
+teardown:
+  keepCluster: false

@@ -1,0 +1,74 @@
+# yaml-language-server: $schema=https://cli.astrona.io/schema/lab-config.schema.json
+#
+# Deployment Capstone: A Two-Tier Collector Deployment (LAB). Graded against the live cluster.
+# UNTESTED: built without running it. Validated statically only.
+apiVersion: astrona.io/v1
+metadata:
+  name: ats-075-capstone-020
+  docs:
+    prerequisites: prerequisites.md
+    question: question.md
+    solution: solution.md
+
+runtime:
+  type: kind
+  kind:
+    image: kindest/node:v1.35.8
+    preloadImages:
+      - otel/opentelemetry-collector-contrib:0.162.0
+      - curlimages/curl:8.22.0
+
+# Starting state: a backend Collector that needs a password, a shuttle client
+# pod and an agent DaemonSet that exports straight to the backend with the
+# password in its own ConfigMap. The agent adds no attributes and its service
+# account has no RBAC rule. There is no gateway. The faults are left in place
+# on purpose.
+bootstrap:
+  init:
+    - name: seed-cluster
+      description: Create the backend, the client pod and the agent
+      type: file
+      source: bootstrap/01-seed-cluster.sh
+
+# Applied only by `astrona test`: the reference solution.
+testing:
+  init:
+    - name: apply-solution
+      description: Apply the reference solution
+      type: file
+      source: solution/apply.sh
+    - name: wait-for-settled
+      description: Wait until the gateway Service has two ready endpoints
+      type: file
+      source: testing/wait-for-settled.sh
+
+validation:
+  scripts:
+    - name: agent-rbac
+      description: The agent runs on every node with read-only access to pods and namespaces
+      type: file
+      source: validation/validate-agent-rbac.sh
+      hint: Create a ClusterRole with get, list and watch on pods and namespaces and bind it to the service account otel-agent in starfleet. Grant nothing else.
+    - name: gateway-replicas
+      description: The gateway runs with two ready replicas behind a Service
+      type: file
+      source: validation/validate-gateway-replicas.sh
+      hint: Create a Deployment otel-gateway with replicas 2 and a Service otel-gateway on port 4318 with a readiness probe on port 13133.
+    - name: credentials-central
+      description: Only the gateway holds the backend password, and it reads it from the Secret
+      type: file
+      source: validation/validate-credentials-central.sh
+      hint: Remove the password and the basicauth extension from the agent. In the gateway use ${env:BACKEND_PASSWORD} and set the variable from the Secret backend-credentials with secretKeyRef.
+    - name: end-to-end
+      description: The backend receives the enriched span through the gateway
+      type: file
+      source: validation/validate-end-to-end.sh
+      hint: The agent adds the Kubernetes and environment attributes (k8sattributes with KUBE_NODE_NAME, resourcedetection with the env detector and OTEL_RESOURCE_ATTRIBUTES) and exports to the gateway. The gateway must not remove or replace those attributes. Restart the agent after a ConfigMap change.
+    - name: backend-requires-auth
+      description: The backend still requires credentials
+      type: file
+      source: validation/validate-backend-requires-auth.sh
+      hint: Do not change the backend. It must answer 401 without credentials and 200 with the gateway user and password.
+
+teardown:
+  keepCluster: false

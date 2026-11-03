@@ -1,0 +1,68 @@
+# yaml-language-server: $schema=https://cli.astrona.io/schema/lab-config.schema.json
+#
+# Starfleet Gateway Data Policy Capstone (LAB). Graded against the live cluster. UNTESTED: built with static checks only.
+apiVersion: astrona.io/v1
+metadata:
+  name: ats-075-capstone-050
+  docs:
+    prerequisites: prerequisites.md
+    question: question.md
+    solution: solution.md
+
+runtime:
+  type: kind
+  kind:
+    image: kindest/node:v1.35.8
+    preloadImages:
+      - otel/opentelemetry-collector-contrib:0.162.0
+      - curlimages/curl:8.22.0
+
+bootstrap:
+  init:
+    - name: seed-cluster
+      description: "Deploy the OpenTelemetry Collector 0.162.0 with a pass-through configuration and a curl pod named sender"
+      type: file
+      source: bootstrap/01-seed-cluster.sh
+
+# Applied only by `astrona test`: the reference solution.
+testing:
+  init:
+    - name: apply-solution
+      description: Apply the reference solution
+      type: file
+      source: solution/apply.sh
+    - name: wait-for-settled
+      description: Wait until the restarted Collector answers its health check
+      type: file
+      source: testing/wait-for-settled.sh
+
+validation:
+  scripts:
+    - name: collector-accepts-all-signals
+      description: "The Collector is healthy and all three pipelines deliver an ordinary span, log record and metric"
+      type: file
+      source: validation/validate-collector-accepts-all-signals.sh
+      hint: "Add the processors to all three pipelines, not only to traces. A processor that is defined but not listed in a pipeline does nothing."
+    - name: resource-and-privacy
+      description: "The resource has deployment.environment.name=starfleet-prod and no host.name; the authorization header is deleted; user.email is hashed"
+      type: file
+      source: validation/validate-resource-and-privacy.sh
+      hint: "Use a resource processor for the resource attributes and an attributes processor for the span attributes."
+    - name: route-normalised-before-filter
+      description: "The query string is removed from http.target and health check spans are dropped even when they carry a query string"
+      type: file
+      source: validation/validate-route-normalised-before-filter.sh
+      hint: "The filter compares http.target with /healthz. It can only match probes with a query string after the transform processor has removed the query. Put transform/redact before filter/noise in the processors list."
+    - name: token-and-card-masked
+      description: "The token in url.full and the card number in the log body are masked"
+      type: file
+      source: validation/validate-token-and-card-masked.sh
+      hint: "Use replace_pattern in a transform processor: token=[^&]* to token=REDACTED, and card=[0-9]+ to card=****."
+    - name: noise-dropped-and-identity-kept
+      description: "DEBUG logs and scout.debug.counter are dropped; user.id is removed from shuttle.requests data points"
+      type: file
+      source: validation/validate-noise-dropped-and-identity-kept.sh
+      hint: "Use a filter processor with log_conditions and metric_conditions, and delete_key(datapoint.attributes, \"user.id\") in metric_statements."
+
+teardown:
+  keepCluster: false

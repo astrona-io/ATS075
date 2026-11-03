@@ -1,5 +1,5 @@
 version: 1
-approval: OTCA requested 2026-10-11; established reading-only scope
+approval: OTCA requested 2026-10-11; reading-only scope lifted by the maintainer 2026-11-03
 course:
   id: ATS075
   certification:
@@ -15,18 +15,18 @@ course:
     - Pipelines
     - Transforming Data
 defaults:
-  playground: false
-  module_lab: false
-  capstone: false
-  section_quiz: false
+  playground: true
+  module_lab: true
+  capstone: true
+  section_quiz: true
   final_quiz: true
 assessment_format: YAML question banks v1, registered in assessments/index.yaml
 sections:
 - id: section-010
   title: Configuration
   curriculum_item: Configuration
-  capstone: false
-  section_quiz: false
+  capstone: true
+  section_quiz: true
   modules:
   - id: module-01
     title: Component Definitions, Enabled Pipelines And Distribution Support
@@ -36,16 +36,16 @@ sections:
     - Identify distribution, signal and endpoint compatibility requirements.
     outline:
     - Component Definitions, Enabled Pipelines And Distribution Support
-    playground: false
-    module_lab: false
+    playground: true
+    module_lab: true
     sources:
     - reading: sections/section-010/module-01/course-01-component-definitions-enabled-pipelines-and-distribution-support.md
       adapted_from: null
 - id: section-020
   title: Deployment
   curriculum_item: Deployment
-  capstone: false
-  section_quiz: false
+  capstone: true
+  section_quiz: true
   modules:
   - id: module-01
     title: Agent And Gateway Tiers, Ownership And Failure Domains
@@ -55,16 +55,16 @@ sections:
     - Reason about availability, access and buffering between collection layers.
     outline:
     - Agent And Gateway Tiers, Ownership And Failure Domains
-    playground: false
-    module_lab: false
+    playground: true
+    module_lab: true
     sources:
     - reading: sections/section-020/module-01/course-01-agent-and-gateway-tiers-ownership-and-failure-domains.md
       adapted_from: null
 - id: section-030
   title: Scaling
   curriculum_item: Scaling
-  capstone: false
-  section_quiz: false
+  capstone: true
+  section_quiz: true
   modules:
   - id: module-01
     title: Capacity Signals, Sharding And Stateful Processing
@@ -74,16 +74,16 @@ sections:
     - Reason about scaling without increasing duplicate data or downstream overload.
     outline:
     - Capacity Signals, Sharding And Stateful Processing
-    playground: false
-    module_lab: false
+    playground: true
+    module_lab: true
     sources:
     - reading: sections/section-030/module-01/course-01-capacity-signals-sharding-and-stateful-processing.md
       adapted_from: null
 - id: section-040
   title: Pipelines
   curriculum_item: Pipelines
-  capstone: false
-  section_quiz: false
+  capstone: true
+  section_quiz: true
   modules:
   - id: module-01
     title: Signal Paths, Shared Components And Export Fan-Out
@@ -93,16 +93,16 @@ sections:
     - Identify where ordering, backpressure and signal support affect results.
     outline:
     - Signal Paths, Shared Components And Export Fan-Out
-    playground: false
-    module_lab: false
+    playground: true
+    module_lab: true
     sources:
     - reading: sections/section-040/module-01/course-01-signal-paths-shared-components-and-export-fan-out.md
       adapted_from: null
 - id: section-050
   title: Transforming Data
   curriculum_item: Transforming Data
-  capstone: false
-  section_quiz: false
+  capstone: true
+  section_quiz: true
   modules:
   - id: module-01
     title: Attribute Changes, Filtering And Transformation Safety
@@ -112,8 +112,8 @@ sections:
     - Identify privacy and metric-identity consequences of data changes.
     outline:
     - Attribute Changes, Filtering And Transformation Safety
-    playground: false
-    module_lab: false
+    playground: true
+    module_lab: true
     sources:
     - reading: sections/section-050/module-01/course-01-attribute-changes-filtering-and-transformation-safety.md
       adapted_from: null

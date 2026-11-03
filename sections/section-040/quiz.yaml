@@ -1,0 +1,233 @@
+# Knowledge check for section 040. Listed in astrona.yaml as a `type: quiz` entry after the capstone lab.
+schema_version: 1
+kind: question_bank
+id: ats075-040
+course_id: ATS075
+exam_code: OTCA
+status: draft
+provenance: Original practice material written for this course; not official exam questions.
+scope:
+  type: section
+  id: section-040
+  title: Pipelines
+questions:
+- id: ats075-040-q01
+  type: single_choice
+  difficulty: beginner
+  learning_objective: "Explain what a pipeline is and what starts a component"
+  source_readings:
+  - sections/section-040/module-01/course-01-signal-paths-and-pipeline-names.md
+  prompt: "A Collector file defines the exporter `otlphttp/backend` and the processor `attributes/redact`. The `service.pipelines` section lists only the receiver `otlp`, the processor `batch` and the exporter `debug` in the pipeline `traces`. What happens to a span?"
+  options:
+  - id: a
+    text: "The `gateway` exports it to `otlphttp/backend` as well, because the exporter is defined."
+    explanation: "A definition describes a component. Only a pipeline that lists it makes the Collector start it."
+  - id: b
+    text: "The Collector refuses to start, because two defined components are unused."
+    explanation: "The Collector does not complain about defined components that no pipeline lists."
+  - id: c
+    text: "The span goes through `batch` to `debug` only. The two other components are not started."
+    explanation: "Correct. Only components that a pipeline lists run, so the span ends in the `debug` exporter."
+  - id: d
+    text: "The `attributes/redact` processor runs automatically before `batch`."
+    explanation: "Processors run only when a pipeline lists them, in the order of its list."
+  correct_option: c
+  explanation: "Definitions only describe components. The `service` section decides which components start and how they connect."
+- id: ats075-040-q02
+  type: single_choice
+  difficulty: beginner
+  learning_objective: "Name pipelines with the type/name form"
+  source_readings:
+  - sections/section-040/module-01/course-01-signal-paths-and-pipeline-names.md
+  prompt: "A team wants two different pipelines for traces in one Collector. Which keys under `service.pipelines` are valid?"
+  options:
+  - id: a
+    text: "`traces` and `traces/audit`"
+    explanation: "Correct. The type is `traces` in both keys, and the part after the slash makes the second key different."
+  - id: b
+    text: "`traces` and `traces`"
+    explanation: "A key can appear only once. Two pipelines need two different keys."
+  - id: c
+    text: "`traces` and `spans/audit`"
+    explanation: "The type before the slash must be `traces`, `metrics` or `logs`."
+  - id: d
+    text: "`traces/audit` only, because the plain `traces` key is reserved"
+    explanation: "The plain `traces` key is valid. The name after the slash is optional."
+  correct_option: a
+  explanation: "A pipeline key is a signal type with an optional name. The name makes keys of the same type unique."
+- id: ats075-040-q03
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: "Explain what the Collector shares between pipelines"
+  source_readings:
+  - sections/section-040/module-01/course-02-shared-components-and-instances.md
+  prompt: "The receiver `otlp`, the processor `batch` and the exporter `debug` are each listed in three pipelines. How many objects of each does the Collector run?"
+  options:
+  - id: a
+    text: "One receiver, one processor and one exporter, shared by all three pipelines."
+    explanation: "The processor is created once for each pipeline that lists it."
+  - id: b
+    text: "One receiver, three processors and one exporter."
+    explanation: "Correct. Receivers and exporters exist once for each name. Each pipeline has its own instance of a processor."
+  - id: c
+    text: "Three receivers, three processors and three exporters."
+    explanation: "The receiver listens on one port, so it exists once. The exporter also exists once."
+  - id: d
+    text: "One receiver and one exporter, and no `batch` processor in a pipeline that shares the receiver."
+    explanation: "A pipeline that lists a processor always gets an instance of it."
+  correct_option: b
+  explanation: "Receivers and exporters are shared by name. A processor is created for each pipeline that lists it, so its state is not shared."
+- id: ats075-040-q04
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: "Explain what happens when a pipeline changes data"
+  source_readings:
+  - sections/section-040/module-01/course-02-shared-components-and-instances.md
+  prompt: "Two traces pipelines use the receiver `otlp`. Only `traces/public` lists `attributes/redact`, which deletes `user.email`. What does `traces/internal` receive?"
+  options:
+  - id: a
+    text: "Spans without `user.email`, because the receiver delivers one shared object."
+    explanation: "A pipeline that changes data works on its own copy."
+  - id: b
+    text: "Nothing, because only one pipeline can use a receiver."
+    explanation: "Many pipelines can list the same receiver."
+  - id: c
+    text: "Spans without `user.email`, because processors of one name act on all pipelines."
+    explanation: "A processor instance belongs to one pipeline."
+  - id: d
+    text: "Spans with `user.email`, because the redacting pipeline works on its own copy."
+    explanation: "Correct. The Collector gives a pipeline that modifies data its own copy, so the other pipelines keep the original."
+  correct_option: d
+  explanation: "A processor that changes data acts on a copy that belongs to its pipeline, so other pipelines are not affected."
+- id: ats075-040-q05
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: "Order processors so that removal comes before copying"
+  source_readings:
+  - sections/section-040/module-01/course-03-fan-out-and-processor-order.md
+  prompt: "A pipeline lists `processors: [attributes/copy, attributes/redact, batch]`. `attributes/copy` inserts `email.backup` from `user.email`, and `attributes/redact` deletes `user.email`. What does the backend receive?"
+  options:
+  - id: a
+    text: "A span with `email.backup` that holds the address, and no `user.email`."
+    explanation: "Correct. The copy runs while `user.email` still exists, and the removal then deletes only the original."
+  - id: b
+    text: "A span without both attributes, because the removal runs on every attribute."
+    explanation: "The removal deletes only the key `user.email`."
+  - id: c
+    text: "A span with `user.email`, because `batch` restores the original."
+    explanation: "The `batch` processor groups data. It never restores values."
+  - id: d
+    text: "No span, because the two processors conflict."
+    explanation: "Both processors run in order without a conflict."
+  correct_option: a
+  explanation: "Processors run in list order. A copy that runs before the removal keeps the value, so removal must come first."
+- id: ats075-040-q06
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: "Describe what every exporter of a pipeline receives"
+  source_readings:
+  - sections/section-040/module-01/course-03-fan-out-and-processor-order.md
+  prompt: "A traces pipeline exports to `otlphttp/backend` and `debug`. A teammate wants the backend to get fewer attributes than `debug`. What is true?"
+  options:
+  - id: a
+    text: "Both exporters receive the output of the same processor chain, so the pipeline cannot do this."
+    explanation: "Correct. Fan-out hands the data that leaves the last processor to every exporter of the pipeline."
+  - id: b
+    text: "The order of the exporters in the list decides which one receives the original."
+    explanation: "Exporters never receive the original. They receive the output of the last processor."
+  - id: c
+    text: "The `debug` exporter always receives the original data."
+    explanation: "`debug` is an exporter like the others and receives the processed data."
+  - id: d
+    text: "The backend receives fewer attributes automatically, because it is a network exporter."
+    explanation: "The exporter type does not remove attributes."
+  correct_option: a
+  explanation: "Fan-out happens after the last processor. Different data for two destinations needs two pipelines."
+- id: ats075-040-q07
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: "Identify the two sides of a connector"
+  source_readings:
+  - sections/section-040/module-02/course-01-connectors-between-pipelines.md
+  prompt: "The connector `count` is listed in `receivers` of the `metrics` pipeline. No pipeline lists it in `exporters`. What happens when the Collector starts?"
+  options:
+  - id: a
+    text: "The metrics pipeline starts and exports zero counts."
+    explanation: "A connector with one side only is an error."
+  - id: b
+    text: "The Collector refuses to start and names the connector."
+    explanation: "Correct. A connector must be an exporter in one pipeline and a receiver in another."
+  - id: c
+    text: "The Collector adds `count` to the traces pipeline automatically."
+    explanation: "The Collector never changes pipelines on its own."
+  - id: d
+    text: "The Collector starts, and `count` opens a network port for the missing side."
+    explanation: "A connector moves data in memory and opens no port."
+  correct_option: b
+  explanation: "The Collector validates connectors at start. A connector without both sides stops the start."
+- id: ats075-040-q08
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: "Choose a supported signal pair"
+  source_readings:
+  - sections/section-040/module-02/course-01-connectors-between-pipelines.md
+  prompt: "A team wants spans counted and the count published as a metric. Which wiring works?"
+  options:
+  - id: a
+    text: "The `forward` connector from a `traces` pipeline into a `metrics` pipeline."
+    explanation: "`forward` joins pipelines of the same signal type."
+  - id: b
+    text: "The `count` connector as an exporter of a `logs` pipeline and a receiver of a `traces` pipeline."
+    explanation: "`count` outputs metrics, so the receiving pipeline must be a `metrics` pipeline."
+  - id: c
+    text: "The `count` connector listed as an exporter of the `traces` pipeline and as the receiver of a `metrics` pipeline."
+    explanation: "Correct. The pair traces to metrics is supported, and the default metric is `trace.span.count`."
+  - id: d
+    text: "An `otlphttp` exporter in `traces` and an `otlp` receiver in `metrics`."
+    explanation: "Those components send data over the network. They do not convert spans to metrics."
+  correct_option: c
+  explanation: "The `count` connector supports traces, metrics and logs as inputs and metrics as output."
+- id: ats075-040-q09
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: "Explain what the sending queue changes for the sender"
+  source_readings:
+  - sections/section-040/module-02/course-02-sending-queue-retry-and-timeout.md
+  prompt: "The exporter `otlphttp/archive` sends to an address that does not exist. With `sending_queue.enabled: true` a sender receives `HTTP 200` quickly. With `enabled: false` the sender waits. Why?"
+  options:
+  - id: a
+    text: "With the queue disabled, the exporter retries inside the request, so the receiver cannot answer before the exporter returns."
+    explanation: "Correct. The queue decouples the pipeline from the destination. Without it, retries run in the request."
+  - id: b
+    text: "With the queue disabled, the Collector skips the retry layer and the request fails at once."
+    explanation: "The retry layer still applies when the queue is disabled."
+  - id: c
+    text: "With the queue enabled, the Collector sends the data to the destination before it answers."
+    explanation: "With the queue enabled, the exporter returns after the batch is in the queue."
+  - id: d
+    text: "With the queue enabled, a `200` proves that the archive holds the data."
+    explanation: "A `200` means that the Collector accepted the data. It does not prove delivery."
+  correct_option: a
+  explanation: "An enabled queue returns after the batch is queued, and consumers retry in the background. A disabled queue moves the delay to the request."
+- id: ats075-040-q10
+  type: single_choice
+  difficulty: advanced
+  learning_objective: "Predict what a full queue does to the sender and other exporters"
+  source_readings:
+  - sections/section-040/module-02/course-03-backpressure-and-failing-exporters.md
+  prompt: "In a pipeline with the exporters `otlphttp/archive`, `otlphttp/backend` and `debug`, the archive queue is full and `block_on_overflow` is `false`. What is the likely result for one request?"
+  options:
+  - id: a
+    text: "The sender receives an error, and the other exporters still receive the batch."
+    explanation: "Correct. The fan-out calls every exporter and combines the errors, so the sender sees a failure while the healthy exporters deliver."
+  - id: b
+    text: "The Collector drops the request without telling the sender, and no exporter receives it."
+    explanation: "The error travels back to the sender, and the other exporters are still called."
+  - id: c
+    text: "The request waits until the archive has room, and no exporter receives data meanwhile."
+    explanation: "Waiting happens only when `block_on_overflow` is `true`."
+  - id: d
+    text: "The Collector deletes the oldest batch in the queue and returns `200`."
+    explanation: "A full queue rejects the new batch. It does not delete queued batches."
+  correct_option: a
+  explanation: "A full queue rejects the new batch, and the error travels back to the sender. The sender's retry can then duplicate data at the healthy destinations."

@@ -1,0 +1,53 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: otelcol-config
+  namespace: starfleet
+data:
+  base.yaml: |
+    extensions:
+      health_check:
+        endpoint: 0.0.0.0:13133
+    receivers:
+      otlp:
+        protocols:
+          http:
+            endpoint: 0.0.0.0:4318
+    processors:
+      memory_limiter:
+        check_interval: 1s
+        limit_mib: 150
+        spike_limit_mib: 30
+      batch: {}
+    exporters:
+      debug:
+        verbosity: basic
+      otlphttp/gateway:
+        endpoint: ${env:GATEWAY_ENDPOINT}
+        headers:
+          authorization: "Bearer ${env:BACKEND_TOKEN}"
+    service:
+      pipelines:
+        traces:
+          receivers: [otlp]
+          processors: [memory_limiter, batch]
+          exporters: [debug, otlphttp/gateway]
+  override.yaml: |
+    receivers:
+      otlp/second:
+        protocols:
+          http:
+            endpoint: 0.0.0.0:4319
+    processors:
+      resource:
+        attributes:
+          - key: deployment.environment
+            value: ${env:DEPLOY_ENV}
+            action: upsert
+    service:
+      extensions: [health_check]
+      pipelines:
+        traces:
+          receivers: [otlp, otlp/second]
+          processors: [memory_limiter, resource, batch]

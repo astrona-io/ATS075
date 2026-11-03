@@ -1,8 +1,8 @@
 # How This Course Is Made
 
-Authors map sections to the official OpenTelemetry Certified Associate (OTCA) objectives and check mechanisms against primary documentation. They review examples for responsible components, prerequisites and meaningful failure cases.
+Authors map sections to the official OpenTelemetry Certified Associate (OTCA) objectives and check mechanisms against primary documentation. They review examples for responsible components, prerequisites and meaningful failure cases. No command output is invented.
 
-Structural checks verify reading order, section introductions, closing summaries, draft metadata and YAML question contracts. No runtime execution or laboratory validation is claimed.
+Structural checks verify the manifest, reading order, section introductions, module summaries and the quiz files. The labs and playgrounds are checked statically, which means their configuration, scripts and documents are validated, and they have not yet been run end to end. Technical review remains necessary before publication.
 
 The [contributors](https://github.com/astrona-io/ATS075/graphs/contributors) maintain the material. To [report a mistake](https://github.com/astrona-io/ATS075/issues), identify the page and disputed statement. The [license](https://github.com/astrona-io/ATS075/blob/main/LICENSE) governs reuse.
 

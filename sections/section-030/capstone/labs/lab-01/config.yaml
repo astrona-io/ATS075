@@ -1,0 +1,86 @@
+# yaml-language-server: $schema=https://cli.astrona.io/schema/lab-config.schema.json
+#
+# Scaling capstone: a protected, trace-aware and sharded Collector fleet (LAB). Graded against the live cluster.
+apiVersion: astrona.io/v1
+metadata:
+  name: ats-075-capstone-030
+  docs:
+    prerequisites: prerequisites.md
+    question: question.md
+    solution: solution.md
+
+runtime:
+  type: kind
+  kind:
+    image: kindest/node:v1.35.8
+    preloadImages:
+      - otel/opentelemetry-collector-contrib:0.162.0
+      - curlimages/curl:8.22.0
+
+# Starting state: an unprotected gateway with a plain otlp exporter and no
+# exposed self-telemetry, two tail_sampling sampler pods behind a headless
+# Service, and a two-pod scraper StatefulSet that scrapes every target twice.
+bootstrap:
+  init:
+    - name: seed-cluster
+      description: Apply the gateway, the samplers, the scraper StatefulSet and the curl client
+      type: file
+      source: bootstrap/01-seed-cluster.sh
+
+# Applied only by `astrona test`: the reference solution.
+testing:
+  init:
+    - name: apply-solution
+      description: Apply the reference solution
+      type: file
+      source: solution/apply.sh
+    - name: wait-for-settled
+      description: Wait until the samplers are listed and the scrapers have completed scrape intervals
+      type: file
+      source: testing/wait-for-settled.sh
+
+validation:
+  scripts:
+    - name: gateway-protected
+      description: The gateway has memory_limiter first, batch, and a container memory limit above limit_mib
+      type: file
+      source: validation/validate-protection.sh
+      hint: Add memory_limiter and batch, list them first in the traces pipeline as [memory_limiter, batch], and set resources.limits.memory above limit_mib.
+    - name: self-metrics
+      description: The gateway exposes its own metrics on port 8888 through the Service
+      type: file
+      source: validation/validate-self-metrics.sh
+      hint: Add a service.telemetry.metrics.readers entry with a pull prometheus exporter on host 0.0.0.0 and port 8888, then restart the gateway.
+    - name: queue-capacity
+      description: The running exporter queue has a capacity of at least 5000
+      type: file
+      source: validation/validate-queue-capacity.sh
+      hint: Set sending_queue.queue_size to 5000. With the load_balancing exporter, set it under protocol.otlp so every child exporter gets it.
+    - name: routing-configured
+      description: The traces pipeline sends to a load_balancing exporter that routes by traceID
+      type: file
+      source: validation/validate-routing-configured.sh
+      hint: Use exporters load_balancing with routing_key traceID, protocol.otlp tls insecure, and a dns resolver for sampler-headless.starfleet.svc.cluster.local on port 4317.
+    - name: traces-colocated
+      description: Every test trace is kept whole by exactly one sampler pod
+      type: file
+      source: validation/validate-traces-colocated.sh
+      hint: Route by traceID, not by service, and restart the gateway after the ConfigMap changes.
+    - name: traces-spread
+      description: Different traces reach more than one sampler pod
+      type: file
+      source: validation/validate-traces-spread.sh
+      hint: The dns resolver on the headless Service lists every sampler pod, so traces spread over the pods.
+    - name: scrape-sharded
+      description: Each scrape target is scraped by exactly one scraper pod
+      type: file
+      source: validation/validate-scrape-sharded.sh
+      hint: Add relabel_configs to the scrape job. Use action hashmod with modulus 2 on __address__ into __tmp_hash, then action keep with regex ${env:SHARD}. Each pod already has the SHARD environment variable. Restart the StatefulSet.
+    - name: services-available
+      description: The gateway, both samplers and both scrapers stay available
+      type: file
+      source: validation/validate-services-available.sh
+      hint: Do not scale the samplers or the scrapers down to hide the problems. Check the pods with kubectl get pods -n starfleet.
+
+teardown:
+  keepCluster: false

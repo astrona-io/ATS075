@@ -1,0 +1,68 @@
+# yaml-language-server: $schema=https://cli.astrona.io/schema/lab-config.schema.json
+#
+# Redact Sensitive Data With The Transform Processor (LAB). Graded against the live cluster. UNTESTED: built with static checks only.
+apiVersion: astrona.io/v1
+metadata:
+  name: ats-075-lab-050-02
+  docs:
+    prerequisites: prerequisites.md
+    question: question.md
+    solution: solution.md
+
+runtime:
+  type: kind
+  kind:
+    image: kindest/node:v1.35.8
+    preloadImages:
+      - otel/opentelemetry-collector-contrib:0.162.0
+      - curlimages/curl:8.22.0
+
+bootstrap:
+  init:
+    - name: seed-cluster
+      description: "Deploy the OpenTelemetry Collector 0.162.0 with a pass-through configuration and a curl pod named sender"
+      type: file
+      source: bootstrap/01-seed-cluster.sh
+
+# Applied only by `astrona test`: the reference solution.
+testing:
+  init:
+    - name: apply-solution
+      description: Apply the reference solution
+      type: file
+      source: solution/apply.sh
+    - name: wait-for-settled
+      description: Wait until the restarted Collector answers its health check
+      type: file
+      source: testing/wait-for-settled.sh
+
+validation:
+  scripts:
+    - name: url-token-redacted
+      description: "The token in url.full is replaced by REDACTED and the rest of the URL stays"
+      type: file
+      source: validation/validate-url-token-redacted.sh
+      hint: "Use replace_pattern on span.attributes[\"url.full\"] with the regular expression token=[^&]* and the replacement token=REDACTED."
+    - name: span-attributes-deleted
+      description: "The authorization header and user.email span attributes are deleted"
+      type: file
+      source: validation/validate-span-attributes-deleted.sh
+      hint: "Use delete_key(span.attributes, \"...\") once for each attribute. The first argument is the map, the second is the key."
+    - name: plain-span-intact
+      description: "A span with no url.full attribute still arrives with its attributes"
+      type: file
+      source: validation/validate-plain-span-intact.sh
+      hint: "Add a where clause so the replacement runs only when span.attributes[\"url.full\"] != nil, and keep error_mode at ignore."
+    - name: log-card-masked
+      description: "The card number in the log body is masked as card=****"
+      type: file
+      source: validation/validate-log-card-masked.sh
+      hint: "Use log_statements with replace_pattern(log.body.string, \"card=[0-9]+\", \"card=****\"). The processor must also be in the logs pipeline."
+    - name: datapoint-user-id-removed
+      description: "The user.id data point attribute is removed from metrics and route stays"
+      type: file
+      source: validation/validate-datapoint-user-id-removed.sh
+      hint: "Use metric_statements with delete_key(datapoint.attributes, \"user.id\"), and add the processor to the metrics pipeline."
+
+teardown:
+  keepCluster: false

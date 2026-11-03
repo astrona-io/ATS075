@@ -1,0 +1,69 @@
+# yaml-language-server: $schema=https://cli.astrona.io/schema/lab-config.schema.json
+#
+# Enable Pipelines For All Three Signals (LAB). Graded against the live cluster. Built untested.
+apiVersion: astrona.io/v1
+metadata:
+  name: ats-075-lab-010-01
+  docs:
+    prerequisites: prerequisites.md
+    question: question.md
+    solution: solution.md
+
+runtime:
+  type: kind
+  kind:
+    image: kindest/node:v1.35.8
+    preloadImages:
+      - otel/opentelemetry-collector-contrib:0.162.0
+      - curlimages/curl:8.22.0
+
+# Starting state: an agent Collector whose OTLP receiver listens on localhost, whose traces pipeline only prints spans, and which has no metrics or logs pipeline. The otlphttp/gateway exporter is defined but not enabled. The faults are left in place on purpose.
+bootstrap:
+  init:
+    - name: seed-cluster
+      description: "Create the gateway, the shuttle sender and the agent with a faulty configuration"
+      type: file
+      source: bootstrap/01-seed-cluster.sh
+
+# Applied only by `astrona test`: the reference solution.
+testing:
+  init:
+    - name: apply-solution
+      description: "Apply the reference solution"
+      type: file
+      source: solution/apply.sh
+    - name: wait-for-settled
+      description: "Wait until only the new agent pod is left"
+      type: file
+      source: testing/wait-for-settled.sh
+
+validation:
+  scripts:
+    - name: agent-ready
+      description: "The agent Deployment is available with the original image"
+      type: file
+      source: validation/validate-agent-ready.sh
+      hint: "Read the pod log with kubectl logs. A configuration that does not load keeps the new pod from becoming ready. Keep the health_check extension."
+    - name: traces-reach-gateway
+      description: "A traces request sent to the agent reaches the gateway"
+      type: file
+      source: validation/validate-traces-reach-gateway.sh
+      hint: "The receiver must listen on an address that the Service can reach, and the otlphttp/gateway exporter must be listed in the traces pipeline."
+    - name: metrics-reach-gateway
+      description: "A metrics request sent to the agent reaches the gateway"
+      type: file
+      source: validation/validate-metrics-reach-gateway.sh
+      hint: "A signal needs its own pipeline. Add a metrics pipeline with the otlp receiver and the otlphttp/gateway exporter, then restart the Deployment."
+    - name: logs-reach-gateway
+      description: "A logs request sent to the agent reaches the gateway"
+      type: file
+      source: validation/validate-logs-reach-gateway.sh
+      hint: "Add a logs pipeline in the same way, then restart the Deployment. The Collector reads its configuration only at start."
+    - name: gateway-unchanged
+      description: "The gateway is unchanged"
+      type: file
+      source: validation/validate-gateway-unchanged.sh
+      hint: "Fix the agent in starfleet. Do not change the gateway in outpost."
+
+teardown:
+  keepCluster: false

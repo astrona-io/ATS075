@@ -1,0 +1,73 @@
+# yaml-language-server: $schema=https://cli.astrona.io/schema/lab-config.schema.json
+#
+# Put A Gateway Between The Agents And The Backend (LAB). Graded against the live cluster.
+# UNTESTED: built without running it. Validated statically only.
+apiVersion: astrona.io/v1
+metadata:
+  name: ats-075-lab-020-02
+  docs:
+    prerequisites: prerequisites.md
+    question: question.md
+    solution: solution.md
+
+runtime:
+  type: kind
+  kind:
+    image: kindest/node:v1.35.8
+    preloadImages:
+      - otel/opentelemetry-collector-contrib:0.162.0
+      - curlimages/curl:8.22.0
+
+# Starting state: a backend Collector that needs a password, a shuttle client
+# pod and an agent DaemonSet that exports straight to the backend with the
+# password written in its own ConfigMap. There is no gateway. The faults are
+# left in place on purpose.
+bootstrap:
+  init:
+    - name: seed-cluster
+      description: Create the backend, the client pod and the agent
+      type: file
+      source: bootstrap/01-seed-cluster.sh
+
+# Applied only by `astrona test`: the reference solution.
+testing:
+  init:
+    - name: apply-solution
+      description: Apply the reference solution
+      type: file
+      source: solution/apply.sh
+    - name: wait-for-settled
+      description: Wait until the gateway Service has two ready endpoints
+      type: file
+      source: testing/wait-for-settled.sh
+
+validation:
+  scripts:
+    - name: gateway-replicas
+      description: The gateway runs with two ready replicas behind a Service
+      type: file
+      source: validation/validate-gateway-replicas.sh
+      hint: Create a Deployment otel-gateway with replicas 2 and a Service otel-gateway on port 4318 whose selector matches the gateway pods. Give the pods a readiness probe on port 13133.
+    - name: agent-via-gateway
+      description: A span from shuttle reaches the backend through the agent and the gateway
+      type: file
+      source: validation/validate-agent-via-gateway.sh
+      hint: Change the otlphttp exporter of the agent to http://otel-gateway.starfleet.svc:4318 and restart the agent. The gateway exports to http://otel-backend.starfleet.svc:4318 with the basicauth client extension.
+    - name: credentials-central
+      description: Only the gateway holds the backend password, and it reads it from the Secret
+      type: file
+      source: validation/validate-credentials-central.sh
+      hint: Remove the basicauth extension and the password from the agent configuration. In the gateway use password ${env:BACKEND_PASSWORD} and set that variable from the Secret backend-credentials (key password) with secretKeyRef.
+    - name: backend-requires-auth
+      description: The backend still requires credentials
+      type: file
+      source: validation/validate-backend-requires-auth.sh
+      hint: Do not change the backend. It must answer 401 without credentials and 200 with the gateway user and password.
+    - name: gateway-buffering
+      description: The gateway buffers and limits memory
+      type: file
+      source: validation/validate-gateway-buffering.sh
+      hint: In the gateway configuration add memory_limiter and batch processors, and on the otlphttp exporter add sending_queue with queue_size 5000 and a retry_on_failure section.
+
+teardown:
+  keepCluster: false

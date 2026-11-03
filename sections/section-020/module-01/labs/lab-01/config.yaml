@@ -1,0 +1,68 @@
+# yaml-language-server: $schema=https://cli.astrona.io/schema/lab-config.schema.json
+#
+# Configure A Collector Agent At The Edge (LAB). Graded against the live cluster.
+# UNTESTED: built without running it. Validated statically only.
+apiVersion: astrona.io/v1
+metadata:
+  name: ats-075-lab-020-01
+  docs:
+    prerequisites: prerequisites.md
+    question: question.md
+    solution: solution.md
+
+runtime:
+  type: kind
+  kind:
+    image: kindest/node:v1.35.8
+    preloadImages:
+      - otel/opentelemetry-collector-contrib:0.162.0
+      - curlimages/curl:8.22.0
+
+# Starting state: a shuttle client pod and an agent DaemonSet that receives OTLP
+# traces and prints them. The agent adds no attributes, its service account has
+# no RBAC rule and it has no metrics pipeline. The faults are left in place on
+# purpose.
+bootstrap:
+  init:
+    - name: seed-cluster
+      description: Create the client pod and the minimal agent
+      type: file
+      source: bootstrap/01-seed-cluster.sh
+
+# Applied only by `astrona test`: the reference solution.
+testing:
+  init:
+    - name: apply-solution
+      description: Apply the reference solution
+      type: file
+      source: solution/apply.sh
+    - name: wait-for-settled
+      description: Wait until the agent exports its first host metrics
+      type: file
+      source: testing/wait-for-settled.sh
+
+validation:
+  scripts:
+    - name: agent-rbac
+      description: The agent runs on every node with read-only access to pods and namespaces
+      type: file
+      source: validation/validate-agent-rbac.sh
+      hint: Create a ClusterRole with get, list and watch on pods and namespaces, and a ClusterRoleBinding to the service account otel-agent in starfleet. Do not grant more than that.
+    - name: traces-enriched
+      description: Spans leave the agent with the Kubernetes attributes of the sender
+      type: file
+      source: validation/validate-traces-enriched.sh
+      hint: Add the k8sattributes processor to the traces pipeline with filter.node_from_env_var, the four metadata keys and a pod_association rule that uses from connection. Set KUBE_NODE_NAME from spec.nodeName in the DaemonSet. Restart the agent after you change the ConfigMap.
+    - name: resource-attributes
+      description: The agent adds deployment.environment.name=lab from its environment
+      type: file
+      source: validation/validate-resource-attributes.sh
+      hint: Add the resourcedetection processor with the env detector, set override to false, and set OTEL_RESOURCE_ATTRIBUTES=deployment.environment.name=lab in the agent container.
+    - name: host-metrics
+      description: The agent exports load and memory metrics with host.name
+      type: file
+      source: validation/validate-host-metrics.sh
+      hint: Add the hostmetrics receiver with the load and memory scrapers, add the system detector to resourcedetection, and add a metrics pipeline that exports to debug.
+
+teardown:
+  keepCluster: false

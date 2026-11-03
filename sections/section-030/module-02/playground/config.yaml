@@ -1,0 +1,28 @@
+# yaml-language-server: $schema=https://cli.astrona.io/schema/lab-config.schema.json
+#
+# Sharding And Stateful Processing (PLAYGROUND) - playground environment. A clean sandbox: it starts, creates
+# the Collector workloads from plain manifests, then stays running for free
+# exploration. No task, no grading, no `astrona submit`.
+apiVersion: astrona.io/v1
+metadata:
+  name: ats-075-playground-030-02
+  docs:
+    guide: docs/overview.md
+
+runtime:
+  type: kind
+  kind:
+    image: kindest/node:v1.35.8
+    preloadImages:
+      - otel/opentelemetry-collector-contrib:0.162.0
+      - curlimages/curl:8.22.0
+
+bootstrap:
+  init:
+    - name: prepare
+      description: "Apply a gateway Collector that routes by trace ID, two tail_sampling sampler Collectors, an unsharded two-pod scraper StatefulSet and a curl client"
+      type: file
+      source: bootstrap/prepare.sh
+
+teardown:
+  keepCluster: false

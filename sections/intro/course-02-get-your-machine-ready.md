@@ -1,7 +1,9 @@
 # Get Your Machine Ready
 
-A Markdown reader or the Astrona reading interface is sufficient. Mermaid diagrams describe relationships also explained in the surrounding text.
+You need the Astrona command-line tool, `astrona`, and a container engine that can run kind (Kubernetes in Docker), such as Docker or Podman. kind creates a single-node Kubernetes cluster inside a container. You also need `kubectl`, the Kubernetes command-line client, and `jq`, a tool that filters JSON. Each playground and lab needs about 2 GiB of free memory.
 
-No cluster, cloud account, container runtime or installed CLI is required. Resource excerpts and query expressions illustrate contracts; they are not exercises asking you to deploy or execute anything. No labs or playgrounds are included.
+Check the tool with `astrona check`. Start an environment with `astrona run`, check a graded lab with `astrona submit`, and remove an environment with `astrona destroy` followed by the environment name. The page that opens a playground or lab shows the exact commands for it.
 
-Keep notes on unfamiliar terms and explain why each practice answer follows from the teaching. If a page cannot be read, report its title and visible problem so maintainers can identify it.
+The Collector image `otel/opentelemetry-collector-contrib` is loaded into the cluster when an environment starts. If a start fails, run `astrona destroy` for the environment, check that the container engine is running and has enough memory, and start again.
+
+The course uses Mermaid diagrams, a text format that the reading interface turns into drawings. If your reader does not display a diagram, the surrounding prose still explains its mechanism. The labs in this course are marked as built but not yet run end to end. If a lab check behaves differently from its task text, report the lab name and the failing check.

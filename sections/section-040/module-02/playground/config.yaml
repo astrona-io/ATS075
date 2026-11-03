@@ -1,0 +1,38 @@
+# yaml-language-server: $schema=https://cli.astrona.io/schema/lab-config.schema.json
+#
+# Connectors, Backpressure And Failure Behavior (PLAYGROUND) - playground environment.
+# A clean sandbox: it starts, applies the gateway and backend Collectors and a
+# curl client, then stays running for free exploration. No task, no grading,
+# no `astrona submit`.
+apiVersion: astrona.io/v1
+metadata:
+  name: ats-075-playground-040-02
+  docs:
+    guide: docs/overview.md
+
+runtime:
+  type: kind
+  kind:
+    image: kindest/node:v1.35.8
+    preloadImages:
+      - otel/opentelemetry-collector-contrib:0.162.0
+      - curlimages/curl:8.22.0
+
+# What the learner starts with: the `gateway` Collector (the one to edit), a
+# `backend` Collector that prints everything it receives, and a `shuttle`
+# pod that has curl.
+bootstrap:
+  manifests:
+    - name: pipelines
+      type: file
+      source: manifests/pipelines.yaml
+  waitFor:
+    - resource: deploy/gateway
+      namespace: starfleet
+    - resource: deploy/backend
+      namespace: starfleet
+    - resource: deploy/shuttle
+      namespace: starfleet
+
+teardown:
+  keepCluster: false

@@ -1,0 +1,68 @@
+# yaml-language-server: $schema=https://cli.astrona.io/schema/lab-config.schema.json
+#
+# Clean Up Telemetry Before Export (LAB). Graded against the live cluster. UNTESTED: built with static checks only.
+apiVersion: astrona.io/v1
+metadata:
+  name: ats-075-lab-050-01
+  docs:
+    prerequisites: prerequisites.md
+    question: question.md
+    solution: solution.md
+
+runtime:
+  type: kind
+  kind:
+    image: kindest/node:v1.35.8
+    preloadImages:
+      - otel/opentelemetry-collector-contrib:0.162.0
+      - curlimages/curl:8.22.0
+
+bootstrap:
+  init:
+    - name: seed-cluster
+      description: "Deploy the OpenTelemetry Collector 0.162.0 with a pass-through configuration and a curl pod named sender"
+      type: file
+      source: bootstrap/01-seed-cluster.sh
+
+# Applied only by `astrona test`: the reference solution.
+testing:
+  init:
+    - name: apply-solution
+      description: Apply the reference solution
+      type: file
+      source: solution/apply.sh
+    - name: wait-for-settled
+      description: Wait until the restarted Collector answers its health check
+      type: file
+      source: testing/wait-for-settled.sh
+
+validation:
+  scripts:
+    - name: resource-attributes
+      description: "The resource carries deployment.environment.name=training and no host.name, and keeps service.name"
+      type: file
+      source: validation/validate-resource-attributes.sh
+      hint: "Use a resource processor with an upsert and a delete action, and add it to the traces pipeline."
+    - name: secret-attributes-removed
+      description: "The authorization header attribute is gone from spans and other attributes stay"
+      type: file
+      source: validation/validate-secret-attributes-removed.sh
+      hint: "Use an attributes processor with action delete and key http.request.header.authorization. This is a span attribute, not a resource attribute."
+    - name: email-hashed
+      description: "The user.email span attribute holds a hash, not the address"
+      type: file
+      source: validation/validate-email-hashed.sh
+      hint: "In the attributes processor, use action hash for the key user.email."
+    - name: health-spans-dropped
+      description: "Spans with http.route /healthz are dropped, other spans arrive"
+      type: file
+      source: validation/validate-health-spans-dropped.sh
+      hint: "Use a filter processor with trace_conditions: span.attributes[\"http.route\"] == \"/healthz\". A condition that is true drops the span."
+    - name: debug-logs-dropped
+      description: "Log records below INFO are dropped, INFO records arrive"
+      type: file
+      source: validation/validate-debug-logs-dropped.sh
+      hint: "Use log_conditions: log.severity_number < SEVERITY_NUMBER_INFO, and add the filter processor to the logs pipeline."
+
+teardown:
+  keepCluster: false

@@ -1,0 +1,32 @@
+# yaml-language-server: $schema=https://cli.astrona.io/schema/lab-config.schema.json
+#
+# Gateway Deployment And Agent-To-Gateway Export (PLAYGROUND).
+# A clean sandbox: it starts a kind cluster with a backend Collector that needs
+# a password, a client pod and an agent that exports straight to the backend.
+# Then it stays running for free exploration. No task, no grading, no
+# `astrona submit`. UNTESTED: built without running it.
+apiVersion: astrona.io/v1
+metadata:
+  name: ats-075-playground-020-02
+  docs:
+    guide: docs/overview.md
+
+runtime:
+  type: kind
+  kind:
+    image: kindest/node:v1.35.8
+    preloadImages:
+      - otel/opentelemetry-collector-contrib:0.162.0
+      - curlimages/curl:8.22.0
+
+# Starting state: no gateway. The agent holds the backend password in its own
+# configuration and exports directly to the backend.
+bootstrap:
+  init:
+    - name: seed-cluster
+      description: Create the backend, the client pod and the agent
+      type: file
+      source: bootstrap/01-seed-cluster.sh
+
+teardown:
+  keepCluster: false

@@ -1,0 +1,61 @@
+# yaml-language-server: $schema=https://cli.astrona.io/schema/lab-config.schema.json
+#
+# Sharding And Stateful Processing (LAB). Graded against the live cluster.
+apiVersion: astrona.io/v1
+metadata:
+  name: ats-075-lab-030-02
+  docs:
+    prerequisites: prerequisites.md
+    question: question.md
+    solution: solution.md
+
+runtime:
+  type: kind
+  kind:
+    image: kindest/node:v1.35.8
+    preloadImages:
+      - otel/opentelemetry-collector-contrib:0.162.0
+      - curlimages/curl:8.22.0
+
+# Starting state: two sampler Collectors with a tail_sampling processor behind a
+# headless Service, and a gateway Collector that sends spans with a plain otlp
+# exporter to the sampler ClusterIP Service.
+bootstrap:
+  init:
+    - name: seed-cluster
+      description: Apply the samplers, the gateway with a plain otlp exporter and the curl client
+      type: file
+      source: bootstrap/01-seed-cluster.sh
+
+# Applied only by `astrona test`: the reference solution.
+testing:
+  init:
+    - name: apply-solution
+      description: Apply the reference solution
+      type: file
+      source: solution/apply.sh
+    - name: wait-for-settled
+      description: Wait until the headless Service lists both sampler pods
+      type: file
+      source: testing/wait-for-settled.sh
+
+validation:
+  scripts:
+    - name: routing-configured
+      description: The traces pipeline sends to a load_balancing exporter that routes by traceID
+      type: file
+      source: validation/validate-routing-configured.sh
+      hint: Replace the otlp exporter with a load_balancing exporter. Use routing_key traceID, protocol.otlp with tls insecure, and a dns resolver for sampler-headless.starfleet.svc.cluster.local on port 4317. List load_balancing in the pipeline.
+    - name: traces-colocated
+      description: Every test trace is kept whole by exactly one sampler pod
+      type: file
+      source: validation/validate-traces-colocated.sh
+      hint: The spans of one trace must reach one sampler. Route by traceID and not by service, and restart the gateway after you change its ConfigMap.
+    - name: traces-spread
+      description: Different traces reach more than one sampler pod
+      type: file
+      source: validation/validate-traces-spread.sh
+      hint: A plain otlp exporter to the Service keeps one connection, so one pod gets everything. The load_balancing exporter with a dns resolver on the headless Service spreads traces over the pods.
+
+teardown:
+  keepCluster: false

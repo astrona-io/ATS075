@@ -1,0 +1,233 @@
+# Knowledge check for section 010. Listed in astrona.yaml as a `type: quiz` entry after the capstone lab.
+schema_version: 1
+kind: question_bank
+id: ats075-010
+course_id: ATS075
+exam_code: OTCA
+status: draft
+provenance: Original practice material written for this course; not official exam questions.
+scope:
+  type: section
+  id: section-010
+  title: Configuration
+questions:
+- id: ats075-010-q01
+  type: single_choice
+  difficulty: beginner
+  learning_objective: Explain that a defined component does nothing until a pipeline lists it
+  source_readings:
+  - sections/section-010/module-01/course-01-definitions-and-enabled-pipelines.md
+  prompt: A configuration defines an `otlphttp/gateway` exporter, but no pipeline lists it. The Collector starts. What happens to the data?
+  options:
+  - id: a
+    text: The Collector refuses to start, because every defined component must be used.
+    explanation: An unused definition is not an error.
+  - id: b
+    text: The exporter runs and sends every signal, because a definition is enough.
+    explanation: A definition does not activate a component.
+  - id: c
+    text: The exporter is never created and sends nothing, and the Collector starts normally.
+    explanation: Correct. Only a pipeline (or `service.extensions` for an extension) activates a component.
+  - id: d
+    text: The exporter sends only traces, because traces are the default signal.
+    explanation: No signal is a default for an unlisted exporter.
+  correct_option: c
+  explanation: A component runs only when a pipeline lists it, or when `service.extensions` lists an extension.
+- id: ats075-010-q02
+  type: single_choice
+  difficulty: beginner
+  learning_objective: Tell an undefined reference from an unused definition
+  source_readings:
+  - sections/section-010/module-01/course-01-definitions-and-enabled-pipelines.md
+  prompt: A pipeline lists the exporter `otlphttp/gatway`, but the file defines only `otlphttp/gateway`. What does the Collector do?
+  options:
+  - id: a
+    text: It reports an error that the exporter is not configured and does not start.
+    explanation: Correct. A reference to an undefined component is an error.
+  - id: b
+    text: It uses `otlphttp/gateway`, because the names are close enough.
+    explanation: Identifiers are matched exactly.
+  - id: c
+    text: It ignores the entry and starts the pipeline without an exporter.
+    explanation: A pipeline needs at least one exporter and an unknown name is rejected.
+  - id: d
+    text: It creates an empty exporter with default settings.
+    explanation: The Collector does not create components that no section defines.
+  correct_option: a
+  explanation: A pipeline can only list components that the file defines.
+- id: ats075-010-q03
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Order processors in a pipeline
+  source_readings:
+  - sections/section-010/module-01/course-02-signals-processors-and-exporters-in-a-pipeline.md
+  prompt: Which processor order is the safe default for a traces pipeline?
+  options:
+  - id: a
+    text: '`batch` first, then `memory_limiter`.'
+    explanation: Batching first holds more data in memory before the limiter can act.
+  - id: b
+    text: '`memory_limiter` first, then other processors, then `batch` last.'
+    explanation: Correct. The limiter protects the process early and batching groups the final data before export.
+  - id: c
+    text: The order does not matter, because processors run in parallel.
+    explanation: Processors in one pipeline run in the order listed.
+  - id: d
+    text: '`batch` only, because `memory_limiter` is for metrics.'
+    explanation: The limiter works for every signal.
+  correct_option: b
+  explanation: Processors run in the listed order. Put `memory_limiter` first and `batch` last.
+- id: ats075-010-q04
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Understand pipelines per signal
+  source_readings:
+  - sections/section-010/module-01/course-02-signals-processors-and-exporters-in-a-pipeline.md
+  prompt: An agent has only a `traces` pipeline. A client sends logs to `/v1/logs` on the OTLP receiver. What is the expected result?
+  options:
+  - id: a
+    text: The logs are converted to spans and exported.
+    explanation: The Collector does not convert signals unless a connector does it.
+  - id: b
+    text: The logs are exported through the traces exporter.
+    explanation: A pipeline handles one signal only.
+  - id: c
+    text: The logs are buffered until a logs pipeline is added.
+    explanation: The Collector does not buffer for a pipeline that does not exist.
+  - id: d
+    text: The logs are not accepted into any pipeline, so they never reach a backend.
+    explanation: Correct. Without a logs pipeline the signal has no path.
+  correct_option: d
+  explanation: Each signal needs its own pipeline.
+- id: ats075-010-q05
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Explain listener endpoints behind a Kubernetes Service
+  source_readings:
+  - sections/section-010/module-01/course-03-distributions-validation-and-listener-endpoints.md
+  prompt: A Collector pod is ready and its health port answers, but a client that calls the Service on port 4318 gets a refused connection. The OTLP receiver uses the default endpoint. What is the most likely cause?
+  options:
+  - id: a
+    text: The receiver listens on `localhost` inside the pod, so traffic from the Service cannot reach it.
+    explanation: Correct. A Service forwards to the pod address, and `localhost` accepts only local connections. Bind `0.0.0.0`.
+  - id: b
+    text: The Service uses UDP by default.
+    explanation: A Service uses TCP unless the port says otherwise.
+  - id: c
+    text: A ready pod always has every port open.
+    explanation: Readiness only reflects the health check.
+  - id: d
+    text: OTLP over HTTP needs a gRPC receiver.
+    explanation: OTLP over HTTP is its own protocol setting.
+  correct_option: a
+  explanation: Bind the receiver to `0.0.0.0` so that traffic from outside the pod reaches it.
+- id: ats075-010-q06
+  type: single_choice
+  difficulty: beginner
+  learning_objective: Use the validate command and the components list
+  source_readings:
+  - sections/section-010/module-01/course-03-distributions-validation-and-listener-endpoints.md
+  prompt: Which command checks a configuration file without starting the pipelines?
+  options:
+  - id: a
+    text: '`otelcol-contrib components --config=file.yaml`'
+    explanation: The `components` command lists what a build contains.
+  - id: b
+    text: '`otelcol-contrib --config=file.yaml --dry-run`'
+    explanation: There is no such flag.
+  - id: c
+    text: '`otelcol-contrib validate --config=file.yaml`'
+    explanation: Correct. It loads and checks the configuration and exits.
+  - id: d
+    text: '`kubectl rollout status deployment/otelcol`'
+    explanation: A rollout status reports pod readiness, not configuration validity.
+  correct_option: c
+  explanation: The `validate` command loads the file the way a start does and reports errors.
+- id: ats075-010-q07
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Use environment variable expansion
+  source_readings:
+  - sections/section-010/module-02/course-01-environment-variables-in-configuration.md
+  prompt: "A Collector uses `endpoint: ${env:GATEWAY_ENDPOINT}`. You change the environment variable in a running pod's Deployment template and the pod is not replaced. What does the Collector use?"
+  options:
+  - id: a
+    text: The new value, because the Collector rereads variables every minute.
+    explanation: The value is read once, at start.
+  - id: b
+    text: The value that was read at start, until a new process starts.
+    explanation: Correct. The resolver expands the reference when the Collector loads the configuration.
+  - id: c
+    text: An empty value, because the reference is invalid after a change.
+    explanation: The old value stays in use.
+  - id: d
+    text: The default `localhost` value.
+    explanation: There is no such default for a variable.
+  correct_option: b
+  explanation: The Collector expands environment references once at start, so a change needs a restart.
+- id: ats075-010-q08
+  type: single_choice
+  difficulty: advanced
+  learning_objective: Predict the merge of several configuration sources
+  source_readings:
+  - sections/section-010/module-02/course-02-several-files-providers-and-secrets.md
+  prompt: 'The first file sets the traces pipeline to `exporters: [debug, otlphttp/gateway]`. A second `--config` file sets `exporters: [debug]` for the same pipeline. What is the merged exporter list?'
+  options:
+  - id: a
+    text: '`[debug, otlphttp/gateway]`, because lists are merged.'
+    explanation: Lists are replaced, not merged.
+  - id: b
+    text: '`[debug, debug, otlphttp/gateway]`, because lists are appended.'
+    explanation: Lists are not appended.
+  - id: c
+    text: An error, because two sources cannot set the same key.
+    explanation: Several sources may set the same key. The later one wins.
+  - id: d
+    text: '`[debug]`, because a list in a later source replaces the earlier list.'
+    explanation: Correct. Maps merge key by key, and a list is replaced as a whole.
+  correct_option: d
+  explanation: Maps merge and lists are replaced, so the later source wins for a list.
+- id: ats075-010-q09
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Handle secrets in a configuration
+  source_readings:
+  - sections/section-010/module-02/course-02-several-files-providers-and-secrets.md
+  prompt: Which approach keeps a backend token out of the ConfigMap that holds the Collector configuration?
+  options:
+  - id: a
+    text: Base64 encode the token and write it in the ConfigMap.
+    explanation: Base64 is an encoding, not encryption.
+  - id: b
+    text: Store the token in a Secret, give it to the pod as an environment variable and write `${env:BACKEND_TOKEN}`.
+    explanation: Correct. The configuration holds only the reference.
+  - id: c
+    text: Write the token in an annotation on the Deployment.
+    explanation: Annotations are readable and are not secret storage.
+  - id: d
+    text: Write the token in the exporter name.
+    explanation: Names appear in logs and in the configuration.
+  correct_option: b
+  explanation: Keep the value in a Secret and refer to it with `${env:...}` or `${file:...}`.
+- id: ats075-010-q10
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Enable an extension
+  source_readings:
+  - sections/section-010/module-02/course-03-extensions-named-instances-and-validation.md
+  prompt: A file defines `health_check` under `extensions`, and a readiness probe on port 13133 fails with a refused connection. What is missing?
+  options:
+  - id: a
+    text: A `health_check` pipeline under `service.pipelines`.
+    explanation: Extensions are not part of a pipeline.
+  - id: b
+    text: A second receiver named `health_check`.
+    explanation: The extension is not a receiver.
+  - id: c
+    text: A named instance such as `health_check/second`.
+    explanation: A named instance is not needed to start an extension.
+  - id: d
+    text: The name `health_check` under `service.extensions`.
+    explanation: Correct. An extension runs only when `service.extensions` lists it.
+  correct_option: d
+  explanation: List the extension under `service.extensions` and bind it to `0.0.0.0` for a probe.

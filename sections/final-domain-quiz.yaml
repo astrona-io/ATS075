@@ -1,0 +1,398 @@
+# Final domain knowledge check across all five sections.
+---
+schema_version: 1
+kind: question_bank
+id: ats075-final
+course_id: ATS075
+exam_code: OTCA
+status: draft
+provenance: Original practice material written for this course; not official exam
+  questions.
+scope:
+  type: domain
+  id: the-opentelemetry-collector
+  title: The OpenTelemetry Collector
+questions:
+- id: ats075-final-q01
+  type: single_choice
+  difficulty: beginner
+  learning_objective: Tell an undefined reference from an unused definition
+  source_readings:
+  - sections/section-010/module-01/course-01-definitions-and-enabled-pipelines.md
+  prompt: A pipeline lists the exporter `otlphttp/gatway`, but the file defines only
+    `otlphttp/gateway`. What does the Collector do?
+  options:
+  - id: a
+    text: It reports an error that the exporter is not configured and does not start.
+    explanation: Correct. A reference to an undefined component is an error.
+  - id: b
+    text: It uses `otlphttp/gateway`, because the names are close enough.
+    explanation: Identifiers are matched exactly.
+  - id: c
+    text: It ignores the entry and starts the pipeline without an exporter.
+    explanation: A pipeline needs at least one exporter and an unknown name is rejected.
+  - id: d
+    text: It creates an empty exporter with default settings.
+    explanation: The Collector does not create components that no section defines.
+  correct_option: a
+  explanation: A pipeline can only list components that the file defines.
+- id: ats075-final-q02
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Explain listener endpoints behind a Kubernetes Service
+  source_readings:
+  - sections/section-010/module-01/course-03-distributions-validation-and-listener-endpoints.md
+  prompt: A Collector pod is ready and its health port answers, but a client that
+    calls the Service on port 4318 gets a refused connection. The OTLP receiver uses
+    the default endpoint. What is the most likely cause?
+  options:
+  - id: a
+    text: The receiver listens on `localhost` inside the pod, so traffic from the
+      Service cannot reach it.
+    explanation: Correct. A Service forwards to the pod address, and `localhost` accepts
+      only local connections. Bind `0.0.0.0`.
+  - id: b
+    text: The Service uses UDP by default.
+    explanation: A Service uses TCP unless the port says otherwise.
+  - id: c
+    text: A ready pod always has every port open.
+    explanation: Readiness only reflects the health check.
+  - id: d
+    text: OTLP over HTTP needs a gRPC receiver.
+    explanation: OTLP over HTTP is its own protocol setting.
+  correct_option: a
+  explanation: Bind the receiver to `0.0.0.0` so that traffic from outside the pod
+    reaches it.
+- id: ats075-final-q03
+  type: single_choice
+  difficulty: advanced
+  learning_objective: Predict the merge of several configuration sources
+  source_readings:
+  - sections/section-010/module-02/course-02-several-files-providers-and-secrets.md
+  prompt: 'The first file sets the traces pipeline to `exporters: [debug, otlphttp/gateway]`.
+    A second `--config` file sets `exporters: [debug]` for the same pipeline. What
+    is the merged exporter list?'
+  options:
+  - id: a
+    text: "`[debug, otlphttp/gateway]`, because lists are merged."
+    explanation: Lists are replaced, not merged.
+  - id: b
+    text: "`[debug, debug, otlphttp/gateway]`, because lists are appended."
+    explanation: Lists are not appended.
+  - id: c
+    text: An error, because two sources cannot set the same key.
+    explanation: Several sources may set the same key. The later one wins.
+  - id: d
+    text: "`[debug]`, because a list in a later source replaces the earlier list."
+    explanation: Correct. Maps merge key by key, and a list is replaced as a whole.
+  correct_option: d
+  explanation: Maps merge and lists are replaced, so the later source wins for a list.
+- id: ats075-final-q04
+  type: single_choice
+  difficulty: beginner
+  learning_objective: Route traffic to the agent on the same node
+  source_readings:
+  - sections/section-020/module-01/course-01-agent-topologies-sidecar-daemonset-and-direct-export.md
+  prompt: Which Service setting keeps a request from an application on traffic to
+    the agent that runs on the same node?
+  options:
+  - id: a
+    text: "`type: LoadBalancer`"
+    explanation: That exposes the Service outside the cluster and does not select
+      a node.
+  - id: b
+    text: "`internalTrafficPolicy: Local`"
+    explanation: Correct. It limits endpoints to the local node.
+  - id: c
+    text: "`sessionAffinity: ClientIP`"
+    explanation: That pins a client to one endpoint, which can be on any node.
+  - id: d
+    text: "`publishNotReadyAddresses: true`"
+    explanation: That publishes endpoints that are not ready; it does not select a
+      node.
+  correct_option: b
+  explanation: "`internalTrafficPolicy: Local` limits in-cluster traffic to the endpoints
+    on the node of the sender."
+- id: ats075-final-q05
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Explain the override option of resourcedetection
+  source_readings:
+  - sections/section-020/module-01/course-03-resource-attributes-host-metrics-and-failure-domains.md
+  prompt: An application sets `service.name` itself. The agent runs `resourcedetection`
+    with the default value of `override`. What happens to attributes that detection
+    also produces?
+  options:
+  - id: a
+    text: Detected values are discarded, because the sender always wins.
+    explanation: 'That is the behavior with `override: false`, not the default.'
+  - id: b
+    text: Detected values replace the values the sender set.
+    explanation: Correct. The default is `true`.
+  - id: c
+    text: The telemetry is dropped because of the conflict.
+    explanation: Conflicts do not drop telemetry.
+  - id: d
+    text: The agent adds a second copy under another key.
+    explanation: Attributes are keyed; there is no second copy.
+  correct_option: b
+  explanation: The default for `override` is `true`, so detected values replace those
+    from the sender. Setting it to `false` keeps the sender values.
+- id: ats075-final-q06
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Keep credentials in the gateway
+  source_readings:
+  - sections/section-020/module-02/course-02-centralising-credentials-and-securing-the-hop.md
+  prompt: Which approach keeps the backend password out of the Collector ConfigMap
+    while the gateway can still use it?
+  options:
+  - id: a
+    text: Put the password in the container `args`.
+    explanation: Arguments are visible with `kubectl describe pod`.
+  - id: b
+    text: Store it in a Secret, expose it with `secretKeyRef` as an environment variable
+      and refer to `${env:NAME}` in the configuration.
+    explanation: Correct. The ConfigMap holds only the variable name.
+  - id: c
+    text: Base64 encode the password in the ConfigMap.
+    explanation: Base64 is an encoding, and the ConfigMap is still readable.
+  - id: d
+    text: Give every agent the same password so any tier can use it.
+    explanation: That spreads the secret to every agent.
+  correct_option: b
+  explanation: A Secret plus an environment variable keeps the value out of the ConfigMap.
+    Arguments are visible in the pod description, and base64 is not encryption.
+- id: ats075-final-q07
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Place the memory limiter and set its limits
+  source_readings:
+  - sections/section-030/module-01/course-02-queues-retries-and-memory-limits.md
+  prompt: A gateway has a container memory limit of 256Mi. Which setup protects it
+    best?
+  options:
+  - id: a
+    text: "`memory_limiter` last in the pipeline with `limit_mib: 300`."
+    explanation: This does not match the mechanism described in the reading.
+  - id: b
+    text: "`batch` first, then `memory_limiter` with `limit_mib: 256`."
+    explanation: This does not match the mechanism described in the reading.
+  - id: c
+    text: No `memory_limiter`, because the container limit already protects the process.
+    explanation: This does not match the mechanism described in the reading.
+  - id: d
+    text: "`memory_limiter` first in the pipeline with `limit_mib` below 256."
+    explanation: Correct. The limiter must be first so that it refuses data before
+      other processors use memory, and its hard limit must be below the container
+      limit, because the kernel kills the container above it.
+  correct_option: d
+  explanation: The limiter must be first so that it refuses data before other processors
+    use memory, and its hard limit must be below the container limit, because the
+    kernel kills the container above it.
+- id: ats075-final-q08
+  type: single_choice
+  difficulty: beginner
+  learning_objective: Compare CPU and memory limits
+  source_readings:
+  - sections/section-030/module-01/course-03-vertical-and-horizontal-scaling.md
+  prompt: A Collector container goes over its CPU limit and, in another case, over
+    its memory limit. What happens in each case?
+  options:
+  - id: a
+    text: CPU use is throttled and memory use gets the container killed.
+    explanation: Correct. CPU above the limit slows the process and memory above the
+      limit makes the kernel kill the container.
+  - id: b
+    text: Both cause the container to be killed.
+    explanation: This does not match the mechanism described in the reading.
+  - id: c
+    text: CPU use gets the container killed and memory use is throttled.
+    explanation: This does not match the mechanism described in the reading.
+  - id: d
+    text: Both are throttled and the Collector slows down.
+    explanation: This does not match the mechanism described in the reading.
+  correct_option: a
+  explanation: CPU above the limit slows the process and memory above the limit makes
+    the kernel kill the container.
+- id: ats075-final-q09
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Explain why tail sampling needs trace-aware routing
+  source_readings:
+  - sections/section-030/module-02/course-02-routing-by-trace-id-for-tail-sampling.md
+  prompt: Two tail sampling pods sit behind a plain Service. One trace has an ERROR
+    span, and its spans arrive at both pods. What is the result?
+  options:
+  - id: a
+    text: Both pods keep their part, because the policy matches on one pod.
+    explanation: This does not match the mechanism described in the reading.
+  - id: b
+    text: The trace is kept completely, because the pods share decisions.
+    explanation: This does not match the mechanism described in the reading.
+  - id: c
+    text: Only the pod with the ERROR span keeps its part, and the other part is dropped.
+    explanation: Correct. Each pod decides on the spans it has. The pod with the ERROR
+      span keeps only its part and the other pod drops its part, so the trace is incomplete.
+  - id: d
+    text: The Service reroutes the spans to one pod.
+    explanation: This does not match the mechanism described in the reading.
+  correct_option: c
+  explanation: Each pod decides on the spans it has. The pod with the ERROR span keeps
+    only its part and the other pod drops its part, so the trace is incomplete.
+- id: ats075-final-q10
+  type: single_choice
+  difficulty: beginner
+  learning_objective: Name pipelines with the type/name form
+  source_readings:
+  - sections/section-040/module-01/course-01-signal-paths-and-pipeline-names.md
+  prompt: A team wants two different pipelines for traces in one Collector. Which
+    keys under `service.pipelines` are valid?
+  options:
+  - id: a
+    text: "`traces` and `traces/audit`"
+    explanation: Correct. The type is `traces` in both keys, and the part after the
+      slash makes the second key different.
+  - id: b
+    text: "`traces` and `traces`"
+    explanation: A key can appear only once. Two pipelines need two different keys.
+  - id: c
+    text: "`traces` and `spans/audit`"
+    explanation: The type before the slash must be `traces`, `metrics` or `logs`.
+  - id: d
+    text: "`traces/audit` only, because the plain `traces` key is reserved"
+    explanation: The plain `traces` key is valid. The name after the slash is optional.
+  correct_option: a
+  explanation: A pipeline key is a signal type with an optional name. The name makes
+    keys of the same type unique.
+- id: ats075-final-q11
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Order processors so that removal comes before copying
+  source_readings:
+  - sections/section-040/module-01/course-03-fan-out-and-processor-order.md
+  prompt: 'A pipeline lists `processors: [attributes/copy, attributes/redact, batch]`.
+    `attributes/copy` inserts `email.backup` from `user.email`, and `attributes/redact`
+    deletes `user.email`. What does the backend receive?'
+  options:
+  - id: a
+    text: A span with `email.backup` that holds the address, and no `user.email`.
+    explanation: Correct. The copy runs while `user.email` still exists, and the removal
+      then deletes only the original.
+  - id: b
+    text: A span without both attributes, because the removal runs on every attribute.
+    explanation: The removal deletes only the key `user.email`.
+  - id: c
+    text: A span with `user.email`, because `batch` restores the original.
+    explanation: The `batch` processor groups data. It never restores values.
+  - id: d
+    text: No span, because the two processors conflict.
+    explanation: Both processors run in order without a conflict.
+  correct_option: a
+  explanation: Processors run in list order. A copy that runs before the removal keeps
+    the value, so removal must come first.
+- id: ats075-final-q12
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Choose a supported signal pair
+  source_readings:
+  - sections/section-040/module-02/course-01-connectors-between-pipelines.md
+  prompt: A team wants spans counted and the count published as a metric. Which wiring
+    works?
+  options:
+  - id: a
+    text: The `forward` connector from a `traces` pipeline into a `metrics` pipeline.
+    explanation: "`forward` joins pipelines of the same signal type."
+  - id: b
+    text: The `count` connector as an exporter of a `logs` pipeline and a receiver
+      of a `traces` pipeline.
+    explanation: "`count` outputs metrics, so the receiving pipeline must be a `metrics`
+      pipeline."
+  - id: c
+    text: The `count` connector listed as an exporter of the `traces` pipeline and
+      as the receiver of a `metrics` pipeline.
+    explanation: Correct. The pair traces to metrics is supported, and the default
+      metric is `trace.span.count`.
+  - id: d
+    text: An `otlphttp` exporter in `traces` and an `otlp` receiver in `metrics`.
+    explanation: Those components send data over the network. They do not convert
+      spans to metrics.
+  correct_option: c
+  explanation: The `count` connector supports traces, metrics and logs as inputs and
+    metrics as output.
+- id: ats075-final-q13
+  type: single_choice
+  difficulty: beginner
+  learning_objective: Explain why a true filter condition drops data
+  source_readings:
+  - sections/section-050/module-01/course-02-dropping-data-with-the-filter-processor.md
+  prompt: A filter processor has the `trace_conditions` entry `span.attributes["http.target"]
+    == "/healthz"`. What happens to a span for which the condition is true?
+  options:
+  - id: a
+    text: The span is dropped.
+    explanation: Correct. In the filter processor a condition that is true selects
+      the item for removal.
+  - id: b
+    text: The span is kept and all others are dropped.
+    explanation: The filter processor drops the matches. It does not keep only the
+      matches.
+  - id: c
+    text: The span is marked and sent to a second exporter.
+    explanation: The filter processor does not route data.
+  - id: d
+    text: The span is kept and its name is changed.
+    explanation: The filter processor does not change names.
+  correct_option: a
+  explanation: A condition in the filter processor describes what to drop, so a true
+    result removes the item.
+- id: ats075-final-q14
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Tell resource attributes from span attributes
+  source_readings:
+  - sections/section-050/module-01/course-03-processor-order-and-the-level-of-an-attribute.md
+  prompt: Which processor change removes the resource attribute `host.name` and leaves
+    span attributes alone?
+  options:
+  - id: a
+    text: A resource processor with a `delete` action for `host.name`.
+    explanation: Correct. The resource processor works on the resource level.
+  - id: b
+    text: An attributes processor with a `delete` action for `host.name`.
+    explanation: The attributes processor works on span, log record and data point
+      attributes, not on resource attributes.
+  - id: c
+    text: A filter processor with `host.name` as a condition.
+    explanation: The filter processor drops data and does not remove one attribute.
+  - id: d
+    text: A batch processor.
+    explanation: The batch processor groups data and does not change attributes.
+  correct_option: a
+  explanation: The resource processor changes the attributes of the resource. The
+    attributes processor changes the attributes of the item.
+- id: ats075-final-q15
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Guard a statement
+  source_readings:
+  - sections/section-050/module-02/course-02-redacting-sensitive-attributes.md
+  prompt: Why do redaction statements use `where span.attributes["url.full"] != nil`?
+  options:
+  - id: a
+    text: To copy the attribute to a new key.
+    explanation: A `where` clause does not copy anything.
+  - id: b
+    text: To make the statement run faster on every span.
+    explanation: Speed is not the reason.
+  - id: c
+    text: To avoid an error on spans that do not have the attribute.
+    explanation: Correct. A statement on a missing attribute fails, and `error_mode`
+      then decides whether the change is skipped or the payload is dropped.
+  - id: d
+    text: To drop the spans that lack the attribute.
+    explanation: A `where` clause limits where a statement runs. It does not drop
+      spans.
+  correct_option: c
+  explanation: A `where` clause limits a statement to items that have the attribute,
+    so a missing attribute does not cause an error.
