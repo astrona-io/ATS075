@@ -5,7 +5,7 @@ kind: question_bank
 id: ats075-final
 course_id: ATS075
 exam_code: OTCA
-status: draft
+status: alpha
 provenance: Original practice material written for this course; not official exam
   questions.
 scope:
