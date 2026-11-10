@@ -67,7 +67,7 @@ modules:
         difficulty: intermediate
         estimated_duration: 25m
         topic: collector-configuration
-        task_kind: fix
+        task_kind: troubleshooting
         tags: [collector, pipeline, receiver, exporter, otlp, listener-endpoint, validate]
         learning_goals:
           - Bind a receiver to a reachable address and enable an exporter through a pipeline
@@ -105,7 +105,7 @@ modules:
         difficulty: intermediate
         estimated_duration: 30m
         topic: collector-configuration
-        task_kind: fix
+        task_kind: troubleshooting
         tags: [collector, environment-variable, secret, config-merge, health-check, extension, named-instance]
         learning_goals:
           - Replace a literal token and a literal value with environment references
@@ -131,7 +131,7 @@ modules:
         difficulty: advanced
         estimated_duration: 40m
         topic: collector-configuration
-        task_kind: fix
+        task_kind: troubleshooting
         tags: [collector, pipeline, listener-endpoint, secret, environment-variable, config-merge, health-check, named-instance]
         learning_goals:
           - Repair a listener endpoint, a literal secret, a disabled extension and an override that replaces a list
@@ -299,7 +299,7 @@ modules:
         difficulty: intermediate
         estimated_duration: 25m
         topic: collector-scaling
-        task_kind: fix
+        task_kind: troubleshooting
         tags: [self-telemetry, sending-queue, retry, memory-limiter, batch, gateway]
         learning_goals:
           - Expose the Collector self-telemetry and read the exporter queue capacity
@@ -337,7 +337,7 @@ modules:
         difficulty: intermediate
         estimated_duration: 25m
         topic: collector-scaling
-        task_kind: fix
+        task_kind: troubleshooting
         tags: [load-balancing-exporter, tail-sampling, trace-id, dns-resolver, headless-service]
         learning_goals:
           - Replace a plain exporter with the load balancing exporter keyed by trace ID
@@ -419,7 +419,7 @@ modules:
         difficulty: intermediate
         estimated_duration: 30m
         topic: collector-pipelines
-        task_kind: fix
+        task_kind: build
         tags: [opentelemetry-collector, pipelines, receivers, processors, exporters, fan-out, attributes-processor]
         learning_goals:
           - Add a second exporter to a traces pipeline and prove delivery at the backend
@@ -455,7 +455,7 @@ modules:
         difficulty: intermediate
         estimated_duration: 40m
         topic: collector-backpressure
-        task_kind: fix
+        task_kind: troubleshooting
         tags: [opentelemetry-collector, sending-queue, retry, backpressure, connectors, count-connector, otlphttp]
         learning_goals:
           - Enable the sending queue on a failing exporter so the sender gets a fast answer
@@ -481,7 +481,7 @@ modules:
         difficulty: advanced
         estimated_duration: 40m
         topic: collector-pipelines
-        task_kind: troubleshoot
+        task_kind: troubleshooting
         tags: [opentelemetry-collector, pipelines, connectors, sending-queue, fan-out, troubleshooting, capstone]
         learning_goals:
           - Read the start error of a crash-looping Collector and repair the connector wiring
@@ -534,7 +534,7 @@ modules:
         difficulty: intermediate
         estimated_duration: 25m
         topic: collector-processors
-        task_kind: configure
+        task_kind: build
         tags: [opentelemetry-collector, attributes-processor, resource-processor, filter-processor, ottl, processor-order]
         learning_goals:
           - Set and remove resource attributes with the resource processor
@@ -572,7 +572,7 @@ modules:
         difficulty: intermediate
         estimated_duration: 25m
         topic: collector-processors
-        task_kind: configure
+        task_kind: build
         tags: [opentelemetry-collector, transform-processor, ottl, redaction, replace-pattern, error-mode, metric-identity]
         learning_goals:
           - Mask a token inside a URL and a card number inside a log body with replace_pattern
@@ -598,7 +598,7 @@ modules:
         difficulty: advanced
         estimated_duration: 40m
         topic: collector-processors
-        task_kind: configure
+        task_kind: build
         tags: [opentelemetry-collector, attributes-processor, resource-processor, transform-processor, filter-processor, redaction, processor-order]
         learning_goals:
           - Apply one data policy across traces, metrics and logs with four processors
