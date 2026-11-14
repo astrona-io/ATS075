@@ -1,3 +1,9 @@
+<p align="center">
+  <a href="https://astrona.io/courses/opentelemetry-certified-associate-otca">
+    <img src="https://astrona.io/courses/opentelemetry-certified-associate-otca/domains/ATS075.svg" alt="ATS075: The OpenTelemetry Collector, part of the OpenTelemetry Certified Associate course on Astrona" width="100%">
+  </a>
+</p>
+
 # The OpenTelemetry Collector (ATS075)
 
 OpenTelemetry Certified Associate (OTCA): The OpenTelemetry Collector, worth 26% of the official curriculum. This course belongs to ATP015.
